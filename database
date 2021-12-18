@@ -260,6 +260,19 @@ create table "COMPANY_INFORM"
 );
 
 
+---------- INSERT DATA------------------------
+insert into "ROLE" (id, created_by, created_date, is_deleted, updated_by, updated_date, name)
+values ( nextval('role_seq'), null, now(), default, null, now(), 'ADMIN')
+
+insert into "ROLE"(id, created_by, created_date, is_deleted, updated_by, updated_date, name)
+values ( nextval('role_seq'), null, now(), default, null, now(), 'MANAGER');
+
+insert into "ROLE"(id, created_by, created_date, is_deleted, updated_by, updated_date, name)
+values ( nextval('role_seq'), null, now(), default, null, now(), 'EMPLOYEE');
+
+
+insert into "ROLE"(id, created_by, created_date, is_deleted, updated_by, updated_date, name)
+values ( nextval('role_seq'), null, now(), default, null, now(), 'USER')
 
 
 
