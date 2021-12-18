@@ -1,0 +1,265 @@
+-- Table ROLE ---------------------------------------------
+create sequence ROLE_SEQ start 1;
+create table "ROLE" (
+	ID bigint primary key default nextval('ROLE_SEQ'),
+    NAME bigint,
+
+	CREATED_BY bigint,
+	CREATED_DATE timestamp without time zone,
+	UPDATED_BY bigint,
+	UPDATED_DATE timestamp without time zone,
+	IS_DELETED numeric(2,0) default '0'::numeric
+);
+-- Table ACCOUNT ---------------------------------------------
+create sequence ACCOUNT_SEQ start 1;
+create table "ACCOUNT"
+(
+    ID           bigint primary key default nextval('ACCOUNT_SEQ'),
+    EMAIL        varchar(300),
+    PASSWORD     varchar(1000),
+    ROLE_ID      bigint,
+
+    CREATED_BY   bigint,
+    CREATED_DATE timestamp without time zone,
+    UPDATED_BY   bigint,
+    UPDATED_DATE timestamp without time zone,
+    IS_DELETED   numeric(2, 0)      default '0'::numeric
+);
+
+-- Table USER ---------------------------------------------
+create sequence USER_SEQ start 1;
+create table "USER"
+(
+    ID           bigint primary key default nextval('USER_SEQ'),
+    ACCOUNT_ID bigint,
+    FULL_NAME         varchar(100),
+    PHONE_NUMBER varchar(20),
+    BIRTHDAY     timestamp,
+    GENDER       bigint,
+    AVATAR varchar(200),
+    POINT bigint,
+
+    CREATED_BY   bigint,
+    CREATED_DATE timestamp without time zone,
+    UPDATED_BY   bigint,
+    UPDATED_DATE timestamp without time zone,
+    IS_DELETED   numeric(2, 0)      default '0'::numeric
+);
+
+-- Table STAFF ---------------------------------------------
+create sequence STAFF_SEQ start 1;
+create table "STAFF"
+(
+    ID           bigint primary key default nextval('STAFF_SEQ'),
+    ACCOUNT_ID bigint,
+    FULL_NAME         varchar(100),
+    PHONE_NUMBER varchar(20),
+    BIRTHDAY     timestamp,
+    GENDER       bigint,
+    AVATAR varchar(200),
+    POINT bigint,
+
+    CREATED_BY   bigint,
+    CREATED_DATE timestamp without time zone,
+    UPDATED_BY   bigint,
+    UPDATED_DATE timestamp without time zone,
+    IS_DELETED   numeric(2, 0)      default '0'::numeric
+);
+
+-- Table VERIFY ---------------------------------------------
+create sequence VERIFY_SEQ start 1;
+create table "VERIFY"
+(
+    ID           bigint primary key default nextval('VERIFY_SEQ'),
+    USER_ID bigint,
+    TOKEN varchar(300),
+    Type bigint,
+
+    CREATED_BY   bigint,
+    CREATED_DATE timestamp without time zone,
+    UPDATED_BY   bigint,
+    UPDATED_DATE timestamp without time zone,
+    IS_DELETED   numeric(2, 0)      default '0'::numeric
+);
+
+
+
+-- Table ADDRESS ---------------------------------------------
+create sequence ADDRESS_SEQ start 1;
+create table "ADDRESS"
+(
+    ID           bigint primary key default nextval('ADDRESS_SEQ'),
+    USER_ID bigint,
+    ADDRESS varchar(300),
+    Type bigint,
+
+    CREATED_BY   bigint,
+    CREATED_DATE timestamp without time zone,
+    UPDATED_BY   bigint,
+    UPDATED_DATE timestamp without time zone,
+    IS_DELETED   numeric(2, 0)      default '0'::numeric
+);
+
+-- Table NOTIFY ---------------------------------------------
+create sequence NOTIFY_SEQ start 1;
+create table "NOTIFY"
+(
+    ID           bigint primary key default nextval('NOTIFY_SEQ'),
+    TITLE varchar(300),
+    CONTENT varchar (3000),
+    TOPIC varchar(300),
+    STATUS bigint,
+    PUBLISH_DATE timestamp,
+
+    CREATED_BY   bigint,
+    CREATED_DATE timestamp without time zone,
+    UPDATED_BY   bigint,
+    UPDATED_DATE timestamp without time zone,
+    IS_DELETED   numeric(2, 0)      default '0'::numeric
+);
+
+
+-- Table SERVICE ---------------------------------------------
+create sequence SERVICE_SEQ start 1;
+create table "SERVICE"
+(
+    ID           bigint primary key default nextval('SERVICE_SEQ'),
+    NAME varchar(300),
+    PRICE bigint,
+    NOTE varchar (500),
+
+
+    CREATED_BY   bigint,
+    CREATED_DATE timestamp without time zone,
+    UPDATED_BY   bigint,
+    UPDATED_DATE timestamp without time zone,
+    IS_DELETED   numeric(2, 0)      default '0'::numeric
+);
+
+
+-- Table EMPLOYEE_EXPERIENCE ---------------------------------------------
+create sequence EMPLOYEE_EXPERIENCE_SEQ start 1;
+create table "EMPLOYEE_EXPERIENCE"
+(
+    ID           bigint primary key default nextval('EMPLOYEE_EXPERIENCE_SEQ'),
+    employee_id bigint,
+    service_id bigint,
+    level_point bigint,
+
+
+    CREATED_BY   bigint,
+    CREATED_DATE timestamp without time zone,
+    UPDATED_BY   bigint,
+    UPDATED_DATE timestamp without time zone,
+    IS_DELETED   numeric(2, 0)      default '0'::numeric
+);
+
+-- Table FEEDBACK ---------------------------------------------
+create sequence FEEDBACK_SEQ start 1;
+create table "FEEDBACK"
+(
+    ID           bigint primary key default nextval('FEEDBACK_SEQ'),
+    user_id      bigint,
+    employee_id  bigint,
+    rate_num     bigint,
+    CONTENT      varchar(300),
+    type  bigint,
+
+
+    CREATED_BY   bigint,
+    CREATED_DATE timestamp without time zone,
+    UPDATED_BY   bigint,
+    UPDATED_DATE timestamp without time zone,
+    IS_DELETED   numeric(2, 0)      default '0'::numeric
+);
+
+
+
+-- Table DISCOUNT ---------------------------------------------
+create sequence DISCOUNT_SEQ start 1;
+create table "DISCOUNT"
+(
+    ID           bigint primary key default nextval('DISCOUNT_SEQ'),
+    SERVICE_ID   bigint,
+    TITLE        varchar(300),
+    CONTENT      varchar(300),
+    BANNER       varchar(300),
+    START_TIME   timestamp,
+    END_TIME     timestamp,
+    PERCENTAGE   bigint,
+
+
+    CREATED_BY   bigint,
+    CREATED_DATE timestamp without time zone,
+    UPDATED_BY   bigint,
+    UPDATED_DATE timestamp without time zone,
+    IS_DELETED   numeric(2, 0)      default '0'::numeric
+);
+
+
+-- Table EMPLOYEE_DATE_OFF ---------------------------------------------
+create sequence EMPLOYEE_DATE_OFF_SEQ start 1;
+create table "EMPLOYEE_DATE_OFF"
+(
+    ID             bigint primary key default nextval('EMPLOYEE_DATE_OFF_SEQ'),
+    EMPLOYEE_ID    bigint,
+    DATE_OFF_START timestamp,
+    DATE_OFF_END   timestamp,
+    TYPE           bigint,
+    REASON         varchar(300),
+
+
+    CREATED_BY     bigint,
+    CREATED_DATE   timestamp without time zone,
+    UPDATED_BY     bigint,
+    UPDATED_DATE   timestamp without time zone,
+    IS_DELETED     numeric(2, 0)      default '0'::numeric
+);
+
+
+-- Table TASK ---------------------------------------------
+create sequence TASK_SEQ start 1;
+create table "TASK"
+(
+    ID                   bigint primary key default nextval('TASK_SEQ'),
+    USER_ID              bigint,
+    ADDRESS_ID           bigint,
+    PRICE                bigint,
+    TOTAL_USER           bigint,
+    NOTE                 varchar(500),
+    SERVICE_ID           bigint,
+    ASSIGN_EMPLOYEE_TIME timestamp,
+    IN_PROGRESS          numeric(2, 0)      default '0'::numeric,
+    COMPLETE_TIME        timestamp,
+
+    CREATED_BY           bigint,
+    CREATED_DATE         timestamp without time zone,
+    UPDATED_BY           bigint,
+    UPDATED_DATE         timestamp without time zone,
+    IS_DELETED           numeric(2, 0)      default '0'::numeric
+);
+
+-- Table COMPANY_INFORM ---------------------------------------------
+create sequence COMPANY_INFORM_SEQ start 1;
+create table "COMPANY_INFORM"
+(
+    ID             bigint primary key default nextval('COMPANY_INFORM_SEQ'),
+    ADDRESS        varchar(500),
+    EMAIL          varchar(100),
+    PHONE_NUMBER   varchar(20),
+    OPEN_TIME      timestamp,
+    END_TIME       timestamp,
+    FACEBOOK_LINK  varchar(500),
+    INSTAGRAM_LINK varchar(500),
+
+    CREATED_BY     bigint,
+    CREATED_DATE   timestamp without time zone,
+    UPDATED_BY     bigint,
+    UPDATED_DATE   timestamp without time zone,
+    IS_DELETED     numeric(2, 0)      default '0'::numeric
+);
+
+
+
+
+
