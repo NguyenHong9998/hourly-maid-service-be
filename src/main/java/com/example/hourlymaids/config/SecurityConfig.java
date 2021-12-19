@@ -30,7 +30,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      * The constant PERMIT_AUTHENTICATION_URLS.
      */
     public static final List<String> PERMIT_AUTHENTICATION_URLS = Arrays
-            .asList("/api/v1/auth/login", "/api/v1/auth/register", "/swagger-ui.html");
+            .asList("/api/v1/auth/login", "/api/v1/auth/register", "/swagger-ui.html", "/");
 
     //    @Qualifier("userServiceImpl")
     @Autowired

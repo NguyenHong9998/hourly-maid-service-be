@@ -56,7 +56,7 @@ public class TokenProvider implements Serializable {
     /**
      * The constant SECURITY_KEY_ROOT_DIR.
      */
-    public static String SECURITY_KEY_ROOT_DIR = "/localKeys";
+    public static String SECURITY_KEY_ROOT_DIR = "localKeys";
     private static String SECURITY_KEY_PRIVATE_KEY = "/privateKey";
     private static String SECURITY_KEY_PUBLIC_KEY = "/publicKey";
 
@@ -88,7 +88,9 @@ public class TokenProvider implements Serializable {
         }
 
         publicKey = cryptography.getPublic(SECURITY_KEY_PUBLIC_KEY);
+        System.out.println("publicKey: " + publicKey);
         privateKey = cryptography.getPrivate(SECURITY_KEY_PRIVATE_KEY);
+        System.out.println("privateKey: " + privateKey);
 
     }
 
