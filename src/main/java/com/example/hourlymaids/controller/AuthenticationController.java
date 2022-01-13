@@ -1,6 +1,7 @@
 package com.example.hourlymaids.controller;
 
 import com.example.hourlymaids.config.ResponseDataAPI;
+import com.example.hourlymaids.domain.ForgotPasswordDomain;
 import com.example.hourlymaids.domain.LoginUser;
 import com.example.hourlymaids.domain.UserInformDomain;
 import com.example.hourlymaids.service.UserService;
@@ -27,9 +28,10 @@ public class AuthenticationController {
         return ResponseEntity.ok(ResponseDataAPI.builder().data(userService.checkRegister(registerUserDomain)).build());
     }
 
-    @PostMapping(value = "/reset-pass")
-    public ResponseEntity<ResponseDataAPI> resetPass(@RequestBody UserInformDomain registerUserDomain) throws Exception {
-        return ResponseEntity.ok(ResponseDataAPI.builder().data(userService.checkRegister(registerUserDomain)).build());
+    @PostMapping(value = "/forgot-pass")
+    public ResponseEntity<ResponseDataAPI> resetPass(@RequestBody ForgotPasswordDomain forgotPasswordDomain) {
+        userService.sendMailForgotPassword(forgotPasswordDomain);
+        return ResponseEntity.ok(ResponseDataAPI.builder().data(null).build());
     }
 
 }

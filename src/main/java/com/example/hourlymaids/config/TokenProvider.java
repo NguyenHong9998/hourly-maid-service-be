@@ -304,11 +304,11 @@ public class TokenProvider implements Serializable {
         SECURITY_KEY_PUBLIC_KEY = SECURITY_KEY_ROOT_DIR + SECURITY_KEY_PUBLIC_KEY;
     }
 
-    public String generateForgotPasswordToken(String username, String userId)
+    public String generateForgotPasswordToken(String email, String userId)
             throws Exception {
 
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(email)
                 .setId(userId)
                 .signWith(SignatureAlgorithm.RS256, privateKey)
                 .setIssuedAt(new Date(System.currentTimeMillis()))

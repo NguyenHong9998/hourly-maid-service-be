@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
     UserEntity findByAccountId(Long accountId);
+
+    UserEntity findByPhoneNumber(String phone);
 }

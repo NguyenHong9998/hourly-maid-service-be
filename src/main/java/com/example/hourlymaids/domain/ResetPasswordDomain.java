@@ -4,23 +4,25 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+
 public class ResetPasswordDomain {
-    private String oldPass;
-    private String newPass;
+    private String token;
+    private String newPassword;
 
-    public String getOldPass() {
-        return oldPass;
+    public String getToken() {
+        return token;
     }
 
-    public void setOldPass(String oldPass) {
-        this.oldPass = oldPass;
+    public void setToken(String token) {
+        this.token = token;
     }
 
-    public String getNewPass() {
-        return newPass;
+    public String getNewPassword() {
+        return newPassword;
     }
 
-    public void setNewPass(String newPass) {
-        this.newPass = newPass;
+    public void setNewPassword(String newPassword) {
+        this.newPassword = newPassword;
     }
+
 }

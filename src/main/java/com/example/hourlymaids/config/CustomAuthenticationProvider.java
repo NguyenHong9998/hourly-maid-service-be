@@ -64,13 +64,13 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
                     return new UsernamePasswordAuthenticationToken(userDTO, password, list_authorities);
                 }
-                throw new CustomException(Error.INVALID_USERNAME_OR_PASSWORD.getMessage(),
-                        Error.INVALID_USERNAME_OR_PASSWORD.getCode(),
+                throw new CustomException(Error.INVALID_EMAIL_OR_PASSWORD.getMessage(),
+                        Error.INVALID_EMAIL_OR_PASSWORD.getCode(),
                         HttpStatus.BAD_REQUEST);
 
             } else {
-                throw new CustomException(Error.INVALID_USERNAME_OR_PASSWORD.getMessage(),
-                        Error.INVALID_USERNAME_OR_PASSWORD.getCode(),
+                throw new CustomException(Error.INVALID_EMAIL_OR_PASSWORD.getMessage(),
+                        Error.INVALID_EMAIL_OR_PASSWORD.getCode(),
                         HttpStatus.BAD_REQUEST);
             }
         } else {

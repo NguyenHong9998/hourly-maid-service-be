@@ -7,13 +7,25 @@ public enum Error {
     OLD_PASSWORD_IS_WRONG("S0004", "Old password is wrong"),
     NEW_AND_OLD_PASSWORD_IS_SIMILAR("S0005", "New password and old password is similar"),
     PARAMETER_INVALID("S0006", "Parameter invalid"),
-    INVALID_USERNAME_OR_PASSWORD("S0007", "Email hoặc m"),
     EXTERNAL_LOGIN_FAIL("S0011", "External login fail"),
     INVALID_EMAIL_OR_PASSWORD("S0007", "Email hoặc mật khẩu không đúng"),
     EMAIL_EXIST("S008", "Email đã tồn tại"),
     INVALID_PROFILE("S009", "Thông tin không hợp lệ"),
     SAME_PASS("S010", "Mật khẩu mới giống với mật khẩu cũ"),
-    INVALID_OLD_PASS("S011", "Mật khẩu cũ không đúng");
+    INVALID_OLD_PASS("S011", "Mật khẩu cũ không đúng"),
+    EMAIL_NOT_EXIST("S012", "Email không tồn tại"),
+    CANT_SEND_EMAIL("S013", "Không thể gửi mail"),
+    PHONE_NOT_EXIST("S014", "Số điện thoại không đúng"),
+    PHONE_IS_VERIFY("S015", "Số điện thoại của bạn đã được xác thực"),
+    EMAIL_IS_VERIFY("S016", "Email của bạn đã được xác thực"),
+    SERVICES_NOT_EXIST("S017", "Không tìm thấy dịch vụ"),
+    DUPLICATE_SERVICE_NAME("S018", "Tên dịch vụ trống hoặc đã tồn tại"),
+    TITLE_EMPTY("S019", "Tiêu đề trống, vui lòng thử lại"),
+    START_TIME_OR_DATE_TIME_INVALID("S020", "Thời gian diễn ra chương trình giảm giá không hợp lệ"),
+    DISCOUNT_NOT_EXIST("S021" , "Không tìm thấy chương trình giảm giá nào"),
+    ADDRESS_NOT_FOUND("S022", "Không tìm thấy địa chỉ hợp lệ"),
+    CoNTENT_FEEDBACk_NULL("S023", "Nội dung phản hồi trống"),
+    CANNOT_UPDATE_ANOTHER_FEEDBACL("S024", "Không thể cập nhật phản hồi của người khác");
 
 
     private String code;

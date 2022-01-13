@@ -1,16 +1,25 @@
 package com.example.hourlymaids.service;
 
-import com.example.hourlymaids.domain.LoginResponse;
-import com.example.hourlymaids.domain.LoginUser;
-import com.example.hourlymaids.domain.UserInformDomain;
-import com.example.hourlymaids.domain.ResetPasswordDomain;
+import com.example.hourlymaids.domain.*;
 
 public interface UserService {
     LoginResponse checkLogin(LoginUser loginUser) throws Exception;
 
     LoginResponse checkRegister(UserInformDomain registerUserDomain) throws Exception;
 
-    void resetPassword(ResetPasswordDomain resetPasswordDomain);
+    void resetPassword(ChangePasswordDomain resetPasswordDomain);
 
     UserInformDomain getProfile();
+
+    void sendMailForgotPassword(ForgotPasswordDomain forgotPasswordDomain);
+
+    void sendMailVerifyEmail(VerifyEmailDomain verifyEmailDomain);
+
+    void sendSMSVerifyPhone(VerifyPhoneDomain verifyPhoneDomain);
+
+    void verifyEmail(VerifyDomain verifyDomain);
+
+    void verifyPhone(VerifyDomain verifyDomain);
+
+    void resetPassword(ResetPasswordDomain resetPasswordDomain);
 }

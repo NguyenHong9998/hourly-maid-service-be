@@ -79,9 +79,9 @@ public class UserInformDomain {
         this.birthday = birthday;
     }
 
-    public boolean isValidUser() {
-        if (StringUtils.isEmpty(email) || StringUtils.isEmpty(password) || StringUtils.isEmpty(phone) ||
-                StringUtils.isEmpty(fullName) || StringUtils.isEmpty(roleId)) {
+    public boolean isValidUser(UserInformDomain domain) {
+        if (StringUtils.isEmpty(domain.getEmail()) || StringUtils.isEmpty(domain.password) || StringUtils.isEmpty(domain.getPhone()) ||
+                StringUtils.isEmpty(domain.getFullName()) || StringUtils.isEmpty(domain.getRoleId())) {
             return false;
         }
         return true;

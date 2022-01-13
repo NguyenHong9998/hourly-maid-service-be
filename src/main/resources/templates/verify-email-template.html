@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Sending Email with Thymeleaf HTML Template Example</title>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+
+    <!-- use the font -->
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            font-size: 48px;
+            margin: 0;
+            padding: 0;
+            color: black;
+        }
+
+        h1 {
+            display: block;
+            font-size: 2em;
+            margin-block-start: 0.67em;
+            margin-block-end: 0.67em;
+            margin-inline-start: 0px;
+            margin-inline-end: 0px;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+<body>
+<table align="center" border="0" cellpadding="0" cellspacing="0" width="600" style="border-collapse: collapse;">
+    <tr>
+        <td style="padding: 40px 30px 40px 30px;">
+            <h1 th:text="${'Xin chào ' + name }">
+
+            </h1>
+            <br>
+            <a th:text="${'CleanMe cảm ơn bạn đã đăng kí tài khoản '}" ></a>
+            <p>
+                Để hoàn tất quá trình đăng ký, vui lòng xác nhận email đăng ký của bạn bằng mã code dưới đây
+            </p>
+            <p th:text="${token}" style="font-size: 18px"></p>
+
+            <p>
+                <br>
+                Xin cảm ơn,
+            </p>
+            <p>CleanMe</p>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>
