@@ -11,7 +11,7 @@ public enum Error {
     INVALID_EMAIL_OR_PASSWORD("S0007", "Email hoặc mật khẩu không đúng"),
     EMAIL_EXIST("S008", "Email đã tồn tại"),
     INVALID_PROFILE("S009", "Thông tin không hợp lệ"),
-    SAME_PASS("S010", "Mật khẩu mới giống với mật khẩu cũ"),
+    SAME_PASS("S010", "Mật khẩu mới giống với mật khẩu cũ, hãy thử lại!"),
     INVALID_OLD_PASS("S011", "Mật khẩu cũ không đúng"),
     EMAIL_NOT_EXIST("S012", "Email không tồn tại"),
     CANT_SEND_EMAIL("S013", "Không thể gửi mail"),
@@ -25,7 +25,8 @@ public enum Error {
     DISCOUNT_NOT_EXIST("S021" , "Không tìm thấy chương trình giảm giá nào"),
     ADDRESS_NOT_FOUND("S022", "Không tìm thấy địa chỉ hợp lệ"),
     CoNTENT_FEEDBACk_NULL("S023", "Nội dung phản hồi trống"),
-    CANNOT_UPDATE_ANOTHER_FEEDBACL("S024", "Không thể cập nhật phản hồi của người khác");
+    CANNOT_UPDATE_ANOTHER_FEEDBACL("S024", "Không thể cập nhật phản hồi của người khác"),
+    INVALID_CONFIRM_PASS("S025", "Xác nhận mật khẩu không trùng với mật khẩu mới");
 
 
     private String code;

@@ -5,7 +5,9 @@ import com.cloudinary.Cloudinary;
 
 import com.cloudinary.SingletonManager;
 import com.cloudinary.utils.ObjectUtils;
+import com.example.hourlymaids.constant.CustomException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -41,7 +43,7 @@ public class CloudinaryUtils {
             String publicId = uploadResult.get("url").toString();
             return publicId;
         } catch (Exception ex) {
-            return null;
+            throw new CustomException(ex.getMessage(), "500", HttpStatus.BAD_REQUEST);
         }
     }
 

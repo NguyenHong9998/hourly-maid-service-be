@@ -65,7 +65,7 @@ public class TokenProvider implements Serializable {
     private PublicKey publicKey;
     private PrivateKey privateKey;
 
-    private String ACCESS_TOKEN_VALIDITY_MILISECONDS = "1800000";
+    private String ACCESS_TOKEN_VALIDITY_MILISECONDS = "2592000000";
     private String REFRESH_TOKEN_VALIDITY_MILISECONDS = "2592000000";
     private String HEADER_STRING = "Authorization";
     private String TOKEN_PREFIX = "Bearer";
@@ -109,7 +109,7 @@ public class TokenProvider implements Serializable {
                 //.signWith(SignatureAlgorithm.HS256, SIGNING_KEY)
                 .signWith(SignatureAlgorithm.RS256, privateKey)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + Integer.valueOf(ACCESS_TOKEN_VALIDITY_MILISECONDS)))
+                .setExpiration(new Date(System.currentTimeMillis() + Long.valueOf(ACCESS_TOKEN_VALIDITY_MILISECONDS)))
                 .compact();
     }
 
@@ -155,7 +155,7 @@ public class TokenProvider implements Serializable {
                 // .signWith(SignatureAlgorithm.HS256, SIGNING_KEY)
                 .signWith(SignatureAlgorithm.RS256, privateKey)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + Integer.valueOf(ACCESS_TOKEN_VALIDITY_MILISECONDS)))
+                .setExpiration(new Date(System.currentTimeMillis() + Long.valueOf(ACCESS_TOKEN_VALIDITY_MILISECONDS)))
                 .compact();
     }
 

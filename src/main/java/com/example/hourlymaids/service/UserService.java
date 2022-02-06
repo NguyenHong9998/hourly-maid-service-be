@@ -22,4 +22,14 @@ public interface UserService {
     void verifyPhone(VerifyDomain verifyDomain);
 
     void resetPassword(ResetPasswordDomain resetPasswordDomain);
+
+    CommonInformDomain getUserCommonInform();
+
+    void updateUserCommonInform(CommonInformDomain domain);
+
+    UserPersonalInformDomain getUserPersonalInform();
+
+    void updateUserPersonalInform(UserPersonalInformDomain domain);
+
+    void changePassword(ChangePasswordDomain domain);
 }

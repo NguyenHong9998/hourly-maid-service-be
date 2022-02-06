@@ -29,6 +29,14 @@ public class UserEntity extends BaseEntity {
     private Long accountId;
     @Column(name = "AVATAR")
     private String avatar;
+    @Column(name = "STATUS")
+    private Integer status;
+    @Column(name = "ID_CARD")
+    private String idCard;
+
+    @Column(name = "ADDRESS")
+    private String address;
+
 
     public Long getId() {
         return id;
@@ -84,5 +92,33 @@ public class UserEntity extends BaseEntity {
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public String getIdCard() {
+        return idCard;
+    }
+
+    public void setIdCard(String idCard) {
+        this.idCard = idCard;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 }

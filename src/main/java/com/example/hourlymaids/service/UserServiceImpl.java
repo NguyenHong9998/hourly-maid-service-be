@@ -3,7 +3,9 @@ package com.example.hourlymaids.service;
 import com.example.hourlymaids.config.CustomAuthenticationProvider;
 import com.example.hourlymaids.config.TokenProvider;
 import com.example.hourlymaids.constant.CustomException;
+import com.example.hourlymaids.constant.EmployeeStatus;
 import com.example.hourlymaids.constant.Error;
+import com.example.hourlymaids.constant.Gender;
 import com.example.hourlymaids.domain.*;
 import com.example.hourlymaids.entity.*;
 import com.example.hourlymaids.repository.AccountRepository;
@@ -25,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -68,7 +71,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         UserDomain domain = (UserDomain) authentication.getPrincipal();
         response.setUserId(domain.getUserId());
         response.setEmail(domain.getEmail());
-        response.setPassword(domain.getPassword());
         response.setRoles(domain.getRoles());
         response.setFullName(domain.getFullName());
         response.setAccessToken(tokenProvider.generateAccessToken(authentication));
@@ -331,5 +333,96 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         verifyRepository.save(verifyEntity);
     }
 
+    @Override
+    public CommonInformDomain getUserCommonInform() {
+        CommonInformDomain domain = new CommonInformDomain();
+        UserEntity userEntity = userRepository.findById(UserUtils.getCurrentUserId()).orElse(null);
+        AccountEntity accountEntity = accountRepository.getById(userEntity.getId());
+        domain.setAvatar(domain.getAvatar());
+        RoleEntity roleEntity = roleRepository.findById(accountEntity.getRoleId()).orElse(null);
+        domain.setRole(roleEntity.getName());
+        domain.setStatus(EmployeeStatus.getEmployeeStatusByCode(userEntity.getStatus()).getValue());
+        domain.setAvatar(userEntity.getAvatar());
+        return domain;
+    }
 
+    @Override
+    public void updateUserCommonInform(CommonInformDomain domain) {
+        String avatar = domain.getAvatar();
+        String role = domain.getRole();
+        String status = domain.getStatus();
+        EmployeeStatus employeeStatus = EmployeeStatus.getEmployeeStatusByValue(status);
+
+        UserEntity userEntity = userRepository.findById(UserUtils.getCurrentUserId()).orElse(null);
+        userEntity.setAvatar(avatar);
+        userEntity.setStatus(employeeStatus.getCode());
+        userRepository.save(userEntity);
+
+        AccountEntity accountEntity = accountRepository.findById(userEntity.getAccountId()).orElse(null);
+        RoleEntity roleEntity = roleRepository.findByName(role);
+        accountEntity.setRoleId(roleEntity.getId());
+        accountRepository.save(accountEntity);
+    }
+
+    @Override
+    public UserPersonalInformDomain getUserPersonalInform() {
+        UserPersonalInformDomain domain = new UserPersonalInformDomain();
+        UserEntity userEntity = userRepository.findById(UserUtils.getCurrentUserId()).orElse(null);
+        AccountEntity accountEntity = accountRepository.findById(userEntity.getAccountId()).orElse(null);
+        domain.setAddress(userEntity.getAddress());
+        domain.setGender(Gender.getEmployeeStatusByCode(userEntity.getGender()).getValue());
+        domain.setEmail(accountEntity.getEmail());
+        domain.setPhone(userEntity.getPhoneNumber());
+        domain.setIdCard(userEntity.getIdCard());
+        domain.setName(userEntity.getFullName());
+        domain.setDateOfBirth(DateTimeUtils.convertDateToStringOrEmpty(userEntity.getBirthday(), DateTimeUtils.YYYYMMDD));
+
+        return domain;
+    }
+
+    @Override
+    public void updateUserPersonalInform(UserPersonalInformDomain domain) {
+        UserEntity userEntity = userRepository.findById(UserUtils.getCurrentUserId()).orElse(null);
+        String email = domain.getEmail();
+        String name = domain.getName();
+        Integer gender = Gender.getEmployeeStatusByValue(domain.getGender()).getCode();
+        String phone = domain.getPhone();
+        String idCard = domain.getIdCard();
+        String address = domain.getAddress();
+        Date dateOfBirth = DateTimeUtils.convertStringToDateOrNull(domain.getDateOfBirth(), DateTimeUtils.YYYYMMDD);
+
+        userEntity.setAddress(address);
+        userEntity.setIdCard(idCard);
+        userEntity.setBirthday(dateOfBirth);
+        userEntity.setGender(gender);
+        userEntity.setPhoneNumber(phone);
+        userEntity.setFullName(name);
+
+        userRepository.save(userEntity);
+
+        AccountEntity accountEntity = accountRepository.findById(userEntity.getAccountId()).orElse(null);
+        accountEntity.setEmail(email);
+        accountRepository.save(accountEntity);
+
+    }
+
+    @Override
+    public void changePassword(ChangePasswordDomain domain) {
+        UserEntity userEntity = userRepository.findById(UserUtils.getCurrentUserId()).orElse(null);
+        AccountEntity accountEntity = accountRepository.findById(userEntity.getAccountId()).orElse(null);
+        if (!(new BCryptPasswordEncoder().matches(domain.getOldPass(), accountEntity.getPassword()))) {
+            throw new CustomException(Error.INVALID_OLD_PASS.getMessage(), Error.INVALID_OLD_PASS.getCode(), HttpStatus.BAD_REQUEST);
+        }
+        String oldPass = domain.getOldPass();
+        String newPass = domain.getNewPass();
+        String confirmPass = domain.getConfirmNewPass();
+        if (oldPass.equals(newPass)) {
+            throw new CustomException(Error.SAME_PASS.getMessage(), Error.SAME_PASS.getCode(), HttpStatus.BAD_REQUEST);
+        }
+        if (!newPass.equals(confirmPass)) {
+            throw new CustomException(Error.INVALID_CONFIRM_PASS.getMessage(), Error.INVALID_CONFIRM_PASS.getCode(), HttpStatus.BAD_REQUEST);
+        }
+        accountEntity.setPassword(new BCryptPasswordEncoder().encode(domain.getNewPass()));
+        accountRepository.save(accountEntity);
+    }
 }

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 public class ChangePasswordDomain {
     private String oldPass;
     private String newPass;
+    private String confirmNewPass;
 
     public String getOldPass() {
         return oldPass;
@@ -22,5 +23,13 @@ public class ChangePasswordDomain {
 
     public void setNewPass(String newPass) {
         this.newPass = newPass;
+    }
+
+    public String getConfirmNewPass() {
+        return confirmNewPass;
+    }
+
+    public void setConfirmNewPass(String confirmNewPass) {
+        this.confirmNewPass = confirmNewPass;
     }
 }

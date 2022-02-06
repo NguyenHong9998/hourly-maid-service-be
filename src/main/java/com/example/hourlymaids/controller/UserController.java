@@ -55,6 +55,33 @@ public class UserController {
         return ResponseEntity.ok(ResponseDataAPI.builder().data(null).build());
     }
 
+    @GetMapping("/common-inform")
+    public ResponseEntity<Object> getUserCommonInform() {
+        return ResponseEntity.ok(ResponseDataAPI.builder().data(userService.getUserCommonInform()).build());
+    }
+
+    @PutMapping("/common-inform")
+    public ResponseEntity<Object> updateUserCommonInform(@RequestBody CommonInformDomain domain) {
+        userService.updateUserCommonInform(domain);
+        return ResponseEntity.ok(ResponseDataAPI.builder().build());
+    }
+
+    @GetMapping("/personal-inform")
+    public ResponseEntity<Object> getUserPersonalInform() {
+        return ResponseEntity.ok(ResponseDataAPI.builder().data(userService.getUserPersonalInform()).build());
+    }
+
+    @PutMapping("/personal-inform")
+    public ResponseEntity<Object> updateUserPersonalInform(@RequestBody UserPersonalInformDomain domain) {
+        userService.updateUserPersonalInform(domain);
+        return ResponseEntity.ok(ResponseDataAPI.builder().build());
+    }
+
+    @PostMapping("/change-pass")
+    public ResponseEntity<Object> changePassword(@RequestBody ChangePasswordDomain domain) {
+        userService.changePassword(domain);
+        return ResponseEntity.ok(ResponseDataAPI.builder().build());
+    }
 
 
 }
