@@ -8,7 +8,7 @@ import java.util.Date;
 @Entity
 @Table(name = "NOTIFY")
 @Where(clause = "is_deleted = 0")
-public class NotifyEntity {
+public class NotifyEntity extends BaseEntity{
     @Id
     @Column(name = "ID")
     @SequenceGenerator(name = "NOTIFY_SEQ", sequenceName = "NOTIFY_SEQ", allocationSize = 1)
@@ -19,9 +19,9 @@ public class NotifyEntity {
     @Column(name = "TITLE")
     private String title;
     @Column(name = "TOPIC")
-    private String topic;
+    private Integer topic;
     @Column(name = "STATUS")
-    private String status;
+    private Integer status;
     @Column(name = "PUBLISH_DATE")
     @Temporal(TemporalType.TIMESTAMP)
     private Date publishDate;
@@ -50,19 +50,19 @@ public class NotifyEntity {
         this.title = title;
     }
 
-    public String getTopic() {
+    public Integer getTopic() {
         return topic;
     }
 
-    public void setTopic(String topic) {
+    public void setTopic(Integer topic) {
         this.topic = topic;
     }
 
-    public String getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 

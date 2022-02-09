@@ -10,6 +10,7 @@ public class GetListRequest {
     private String valueSearch;
     private String columnSort;
     private String typeSort;
+    private String status;
 
     public GetListRequest() {
 
@@ -61,5 +62,13 @@ public class GetListRequest {
 
     public void setTypeSort(String typeSort) {
         this.typeSort = typeSort;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

@@ -26,7 +26,10 @@ public enum Error {
     ADDRESS_NOT_FOUND("S022", "Không tìm thấy địa chỉ hợp lệ"),
     CoNTENT_FEEDBACk_NULL("S023", "Nội dung phản hồi trống"),
     CANNOT_UPDATE_ANOTHER_FEEDBACL("S024", "Không thể cập nhật phản hồi của người khác"),
-    INVALID_CONFIRM_PASS("S025", "Xác nhận mật khẩu không trùng với mật khẩu mới");
+    INVALID_CONFIRM_PASS("S025", "Xác nhận mật khẩu không trùng với mật khẩu mới"),
+    CONTENT_EMPTY("S026", "Nội dung trống, vui lòng thử lại"),
+    NOTIFY_NOT_FOUND("S027", "Không tìm thấy thông báo")
+    ;
 
 
     private String code;
