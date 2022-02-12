@@ -15,16 +15,14 @@ public class FeedbackController {
     private FeedbackService service;
 
     @GetMapping("")
-    public ResponseEntity<ResponseDataAPI> getListDiscount(@RequestParam(value = "offset", required = false) Integer offset,
-                                                           @RequestParam(value = "limit", required = false) Integer limit,
-                                                           @RequestParam(value = "type") Integer type,
-                                                           @RequestParam(value = "user_id", required = false) String userId
-    ) {
-        GetListRequest request = new GetListRequest();
-        request.setLimit(limit);
-        request.setOffset(offset);
-        ResponseDataAPI dataAPI = service.getListFeedback(userId, request, type);
+    public ResponseEntity<ResponseDataAPI> getListFeedbackOfUser(@RequestParam(value = "user_id", required = false) String userId) {
+        ResponseDataAPI dataAPI = service.getListFeedback(userId);
         return ResponseEntity.ok(dataAPI);
+    }
+
+    @GetMapping("/overview")
+    public ResponseEntity<ResponseDataAPI> getOverviewFeedbackOfUser(@RequestParam(value = "user_id", required = false) String userId) {
+        return ResponseEntity.ok(ResponseDataAPI.builder().data(service.getOverviewFeedbackOfUser(userId)).build());
     }
 
     @PutMapping("/{feedback_id}")

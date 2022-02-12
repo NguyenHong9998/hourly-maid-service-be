@@ -7,9 +7,17 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface FeedbackRepository extends JpaRepository<FeedbackEntity, Long> {
 
-    @Query("select f from FeedbackEntity f where f.employeeId = ?1 and type = ?2")
-    Page<FeedbackEntity> findAllFeedbackByEmployeeIdAndByType(Long employeeId, Integer type, Pageable pageable);
+    @Query("select f, c.id from FeedbackEntity f inner join ClientEntity c on f.userId = c.id where f.employeeId = ?1 and c.isDeleted = 0 and  f.isDeleted =0 order by f.createdDate desc ")
+    List<Object[]> findAllFeedbackByEmployeeId(Long employeeId);
+
+    List<FeedbackEntity> findFeedbackEntityByRateNumberAndEmployeeId(Integer rateNumber, Long employeeId);
+
+     @Query("select distinct c.id from FeedbackEntity f inner join ClientEntity c on f.userId = c.id where f.employeeId = ?1 and c.isDeleted = 0 and  f.isDeleted =0 ")
+    List<Long> findAllFeedbackDistinctByEmployeeId(Long employeeId);
+
 }

@@ -1,5 +1,6 @@
 package com.example.hourlymaids.service;
 
+import com.example.hourlymaids.config.ResponseDataAPI;
 import com.example.hourlymaids.domain.*;
 
 public interface UserService {
@@ -32,4 +33,18 @@ public interface UserService {
     void updateUserPersonalInform(UserPersonalInformDomain domain);
 
     void changePassword(ChangePasswordDomain domain);
+
+    ResponseDataAPI getListEmployee(GetListRequest request);
+
+    void createUser(EmployeeListDomain domain);
+
+    void changeStatusEmployee(ChangeStatusEmployeeDomain domain);
+
+    CommonInformDomain getUserCommonInforById(String id);
+
+    UserPersonalInformDomain getUserPersonalInformById(String id);
+
+    void updateUserCommonInformById(CommonInformDomain domain, String id);
+
+    void updateUserPersonalInform(UserPersonalInformDomain domain, String id);
 }

@@ -4,10 +4,14 @@ import com.example.hourlymaids.config.ResponseDataAPI;
 import com.example.hourlymaids.constant.CustomException;
 import com.example.hourlymaids.constant.Error;
 import com.example.hourlymaids.constant.FeedbackType;
+import com.example.hourlymaids.domain.FeedbackDetailDomain;
 import com.example.hourlymaids.domain.FeedbackDomain;
 import com.example.hourlymaids.domain.GetListRequest;
+import com.example.hourlymaids.domain.OverviewFeedbackDomain;
+import com.example.hourlymaids.entity.ClientEntity;
 import com.example.hourlymaids.entity.FeedbackEntity;
 import com.example.hourlymaids.entity.UserEntity;
+import com.example.hourlymaids.repository.ClientRepository;
 import com.example.hourlymaids.repository.FeedbackRepository;
 import com.example.hourlymaids.repository.UserRepository;
 import com.example.hourlymaids.util.StringUtils;
@@ -20,6 +24,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,27 +38,25 @@ public class FeedbackServiceImpl implements FeedbackService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private ClientRepository clientRepository;
+
     @Override
-    public ResponseDataAPI getListFeedback(String userId, GetListRequest request, Integer type) {
+    public ResponseDataAPI getListFeedback(String userId) {
         Long user = StringUtils.convertStringToLongOrNull(userId);
 
-        Integer offset = (request.getOffset() == null || request.getOffset() < 1) ? 0 : request.getOffset() - 1;
-        Integer limit = (request.getLimit() == null || request.getLimit() < 1) ? 10 : request.getLimit();
+        List<Object[]> entities = feedbackRepository.findAllFeedbackByEmployeeId(user);
 
-        request.setLimit(limit);
-        request.setOffset(offset);
-
-        Pageable pageable = PageRequest.of(request.getOffset(), request.getLimit(), Sort.by("createDate").descending());
-
-        Page<FeedbackEntity> entities = feedbackRepository.findAllFeedbackByEmployeeIdAndByType(user, type, pageable);
-
-        List<Object> result = entities.stream().map(feedbackEntity -> {
+        List<Object> result = entities.stream().map(objects -> {
+            FeedbackEntity feedbackEntity = (FeedbackEntity) objects[0];
             FeedbackDomain feedbackDomain = new FeedbackDomain();
             feedbackDomain.setContent(feedbackEntity.getContent());
             feedbackDomain.setUserId(feedbackEntity.getUserId().toString());
             feedbackDomain.setType(feedbackEntity.getType().toString());
             feedbackDomain.setEmployeeId(feedbackEntity.getEmployeeId().toString());
-            UserEntity userEntity = userRepository.getById(feedbackEntity.getUserId());
+            Long clientId = StringUtils.convertObjectToLongOrNull(objects[1]);
+            ClientEntity userEntity = clientRepository.findById(clientId).orElse(null);
+
             feedbackDomain.setUsername(userEntity.getFullName());
             feedbackDomain.setAvatarUser(userEntity.getAvatar());
             return feedbackDomain;
@@ -60,7 +64,7 @@ public class FeedbackServiceImpl implements FeedbackService {
 
         ResponseDataAPI responseDataAPI = new ResponseDataAPI();
         responseDataAPI.setData(result);
-        responseDataAPI.setTotalRows(entities.getTotalElements());
+        responseDataAPI.setTotalRows(entities.size());
         return responseDataAPI;
     }
 
@@ -111,5 +115,25 @@ public class FeedbackServiceImpl implements FeedbackService {
         feedbackEntity.setRateNumber(StringUtils.convertStringToIntegerOrNull(feedbackDomain.getVoteNum()));
 
         feedbackRepository.save(feedbackEntity);
+    }
+
+    @Override
+    public OverviewFeedbackDomain getOverviewFeedbackOfUser(String userId) {
+        Long id = StringUtils.convertObjectToLongOrNull(userId);
+        Integer numClient = feedbackRepository.findAllFeedbackDistinctByEmployeeId(id).size();
+        Integer numberFeedbackOfUser = feedbackRepository.findAllFeedbackByEmployeeId(id).size();
+        List<FeedbackDetailDomain> detail = new ArrayList<>();
+        for (int i = 1; i <= 5; i++) {
+            FeedbackDetailDomain domain = new FeedbackDetailDomain();
+            domain.setNumStar(String.valueOf(i));
+            Integer numFeedbackByRate = feedbackRepository.findFeedbackEntityByRateNumberAndEmployeeId(i, id).size();
+            domain.setNumUser(numFeedbackByRate.toString());
+            domain.setPercent(new DecimalFormat("0.00").format(numberFeedbackOfUser == 0 ? 0 : numFeedbackByRate / numberFeedbackOfUser * 100));
+            detail.add(domain);
+        }
+        OverviewFeedbackDomain result = new OverviewFeedbackDomain();
+        result.setNumUser(numClient.toString());
+        result.setDetail(detail);
+        return result;
     }
 }

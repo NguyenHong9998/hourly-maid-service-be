@@ -1,11 +1,10 @@
 package com.example.hourlymaids.service;
 
 import com.example.hourlymaids.config.CustomAuthenticationProvider;
+import com.example.hourlymaids.config.ResponseDataAPI;
 import com.example.hourlymaids.config.TokenProvider;
-import com.example.hourlymaids.constant.CustomException;
-import com.example.hourlymaids.constant.EmployeeStatus;
+import com.example.hourlymaids.constant.*;
 import com.example.hourlymaids.constant.Error;
-import com.example.hourlymaids.constant.Gender;
 import com.example.hourlymaids.domain.*;
 import com.example.hourlymaids.entity.*;
 import com.example.hourlymaids.repository.AccountRepository;
@@ -15,6 +14,10 @@ import com.example.hourlymaids.repository.UserVerifyRepository;
 import com.example.hourlymaids.util.*;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -26,10 +29,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService, UserDetailsService {
@@ -359,7 +360,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         userRepository.save(userEntity);
 
         AccountEntity accountEntity = accountRepository.findById(userEntity.getAccountId()).orElse(null);
-        RoleEntity roleEntity = roleRepository.findByName(role);
+        UserRole userRole = UserRole.getRoleByValue(role);
+        RoleEntity roleEntity = roleRepository.findByName(userRole.getName());
         accountEntity.setRoleId(roleEntity.getId());
         accountRepository.save(accountEntity);
     }
@@ -384,6 +386,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public void updateUserPersonalInform(UserPersonalInformDomain domain) {
         UserEntity userEntity = userRepository.findById(UserUtils.getCurrentUserId()).orElse(null);
         String email = domain.getEmail();
+        AccountEntity checkExistAcc = accountRepository.findByEmail(email);
+        if (checkExistAcc != null) {
+            throw new CustomException(Error.EMAIL_EXIST.getMessage(), Error.EMAIL_EXIST.getCode(), HttpStatus.BAD_REQUEST);
+        }
         String name = domain.getName();
         Integer gender = Gender.getEmployeeStatusByValue(domain.getGender()).getCode();
         String phone = domain.getPhone();
@@ -423,6 +429,208 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw new CustomException(Error.INVALID_CONFIRM_PASS.getMessage(), Error.INVALID_CONFIRM_PASS.getCode(), HttpStatus.BAD_REQUEST);
         }
         accountEntity.setPassword(new BCryptPasswordEncoder().encode(domain.getNewPass()));
+        accountRepository.save(accountEntity);
+    }
+
+    @Override
+    public ResponseDataAPI getListEmployee(GetListRequest request) {
+        List<String> columnSort = Arrays.asList(ColumnSortUser.NAME.getName(), ColumnSortUser.STATUS.getName(), ColumnSortUser.EMAIL.getName(), ColumnSortUser.ROLE.getName());
+        Pageable pageable = null;
+
+        if (columnSort.contains(request.getColumnSort())) {
+            if (ColumnSortUser.NAME.getName().equals(request.getColumnSort())) {
+                request.setColumnSort(ColumnSortUser.NAME.getValue());
+            } else if (ColumnSortUser.STATUS.getName().equals(request.getColumnSort())) {
+                request.setColumnSort(ColumnSortUser.STATUS.getValue());
+            } else if (ColumnSortUser.ROLE.getName().equals(request.getColumnSort())) {
+                request.setColumnSort(ColumnSortUser.ROLE.getValue());
+            } else if (ColumnSortUser.EMAIL.getName().equals(request.getColumnSort())) {
+                request.setColumnSort(ColumnSortUser.EMAIL.getValue());
+            }
+            pageable = getPageable(request, pageable);
+        } else {
+            pageable = PageRequest.of(request.getOffset(), request.getLimit(), Sort.by(ColumnSortUser.CREATED_DATE.getValue()).descending());
+        }
+        String valueSearch = StringUtils.replaceSpecialCharacter(request.getValueSearch()).toUpperCase();
+
+        Page<Object[]> entities;
+        String role = request.getStatus();
+        if (StringUtils.isEmpty(role)) {
+            entities = userRepository.findAllUser(valueSearch, pageable);
+        } else {
+            UserRole userRole = UserRole.getRoleByValue(role);
+            RoleEntity entity = roleRepository.findByName(userRole.getName());
+
+            if (entity == null) {
+                entities = userRepository.findAllUser(valueSearch, pageable);
+            } else {
+                entities = userRepository.findAllUserAndStatus(entity.getId(), valueSearch, pageable);
+            }
+        }
+
+
+        List<Object> result = entities.stream().map(object -> {
+            EmployeeListDomain domain = new EmployeeListDomain();
+            UserEntity userEntity = (UserEntity) object[0];
+            String email = StringUtils.convertObjectToString(object[1]);
+            String roleName = StringUtils.convertObjectToString(object[2]);
+            UserRole userRole = UserRole.getRoleByName(roleName);
+            domain.setEmail(email);
+            domain.setRole(userRole.getValue());
+            domain.setId(userEntity.getId().toString());
+            domain.setPhone(userEntity.getPhoneNumber());
+            domain.setName(userEntity.getFullName());
+            domain.setAvatar(userEntity.getAvatar());
+            domain.setStatus(EmployeeStatus.getEmployeeStatusByCode(userEntity.getStatus()).getValue());
+            return domain;
+        }).collect(Collectors.toList());
+
+        ResponseDataAPI responseDataAPI = new ResponseDataAPI();
+        responseDataAPI.setData(result);
+        responseDataAPI.setTotalRows(entities.getTotalElements());
+
+        return responseDataAPI;
+    }
+
+    private Pageable getPageable(GetListRequest request, Pageable pageable) {
+        if (ConstantDefine.SORT_ASC.equals(request.getTypeSort())) {
+            pageable = PageRequest.of(request.getOffset(), request.getLimit(),
+                    Sort.by(Sort.Order.asc(request.getColumnSort())));
+        } else if (ConstantDefine.SORT_DESC.equals(request.getTypeSort())) {
+            pageable = PageRequest.of(request.getOffset(), request.getLimit(),
+                    Sort.by(Sort.Order.desc(request.getColumnSort())));
+        } else {
+            pageable = PageRequest.of(request.getOffset(), request.getLimit(),
+                    Sort.by(Sort.Order.desc(ColumnSortNotify.CREATE_DATE.getValue())));
+        }
+        return pageable;
+    }
+
+    @Override
+    public void createUser(EmployeeListDomain domain) {
+        UserEntity userEntity = new UserEntity();
+        String email = domain.getEmail();
+        String phone = domain.getPhone();
+        String name = domain.getName();
+        String role = domain.getRole();
+        UserRole userRole = UserRole.getRoleByValue(role);
+        String avatar = StringUtils.isEmpty(domain.getAvatar()) ? "https://www.sibberhuuske.nl/wp-content/uploads/2016/10/default-avatar.png" : domain.getAvatar();
+        if (StringUtils.isEmpty(email)) {
+            throw new CustomException(Error.EMAIL_EMPTY.getMessage(), Error.EMAIL_EXIST.getCode(), HttpStatus.BAD_REQUEST);
+        }
+        if (StringUtils.isEmpty(phone)) {
+            throw new CustomException(Error.PHONE_EMPTY.getMessage(), Error.PHONE_EMPTY.getCode(), HttpStatus.BAD_REQUEST);
+        }
+        if (StringUtils.isEmpty(name)) {
+            throw new CustomException(Error.NAME_EMPTY.getMessage(), Error.NAME_EMPTY.getCode(), HttpStatus.BAD_REQUEST);
+        }
+        if (userRole == null) {
+            throw new CustomException(Error.ROLE_EMPTY.getMessage(), Error.ROLE_EMPTY.getCode(), HttpStatus.BAD_REQUEST);
+        }
+        AccountEntity checkExistAcc = accountRepository.findByEmail(email);
+        if (checkExistAcc != null) {
+            throw new CustomException(Error.EMAIL_EXIST.getMessage(), Error.EMAIL_EXIST.getCode(), HttpStatus.BAD_REQUEST);
+        }
+        RoleEntity roleEntity = roleRepository.findByName(userRole.getName());
+        AccountEntity accountEntity = new AccountEntity();
+        accountEntity.setEmail(email);
+        String pass = RandomStringUtils.randomAlphanumeric(8);
+        String password = new BCryptPasswordEncoder().encode(pass);
+        accountEntity.setRoleId(roleEntity.getId());
+        accountEntity.setPassword(password);
+        accountEntity = accountRepository.save(accountEntity);
+        userEntity.setFullName(name);
+        userEntity.setPhoneNumber(phone);
+        userEntity.setStatus(EmployeeStatus.ACTIVE.getCode());
+        userEntity.setAccountId(accountEntity.getId());
+        userEntity.setAvatar(avatar);
+        userRepository.save(userEntity);
+    }
+
+    @Override
+    public void changeStatusEmployee(ChangeStatusEmployeeDomain domain) {
+        Long id = StringUtils.convertObjectToLongOrNull(domain.getId());
+        EmployeeStatus employeeStatus = EmployeeStatus.getEmployeeStatusByValue(domain.getStatus());
+        UserEntity userEntity = userRepository.findById(id).orElse(null);
+        userEntity.setStatus(employeeStatus.getCode());
+        userRepository.save(userEntity);
+    }
+
+    @Override
+    public CommonInformDomain getUserCommonInforById(String id) {
+        CommonInformDomain domain = new CommonInformDomain();
+        Long userId = StringUtils.convertObjectToLongOrNull(id);
+        UserEntity userEntity = userRepository.findById(userId).orElse(null);
+        AccountEntity accountEntity = accountRepository.getById(userEntity.getId());
+        domain.setAvatar(domain.getAvatar());
+        RoleEntity roleEntity = roleRepository.findById(accountEntity.getRoleId()).orElse(null);
+        domain.setRole(roleEntity.getName());
+        domain.setStatus(EmployeeStatus.getEmployeeStatusByCode(userEntity.getStatus()).getValue());
+        domain.setAvatar(userEntity.getAvatar());
+        return domain;
+    }
+
+    @Override
+    public UserPersonalInformDomain getUserPersonalInformById(String id) {
+        UserPersonalInformDomain domain = new UserPersonalInformDomain();
+        Long userId = StringUtils.convertObjectToLongOrNull(id);
+        UserEntity userEntity = userRepository.findById(userId).orElse(null);
+        AccountEntity accountEntity = accountRepository.findById(userEntity.getAccountId()).orElse(null);
+        domain.setAddress(userEntity.getAddress());
+        domain.setGender(Gender.getEmployeeStatusByCode(userEntity.getGender()).getValue());
+        domain.setEmail(accountEntity.getEmail());
+        domain.setPhone(userEntity.getPhoneNumber());
+        domain.setIdCard(userEntity.getIdCard());
+        domain.setName(userEntity.getFullName());
+        domain.setDateOfBirth(DateTimeUtils.convertDateToStringOrEmpty(userEntity.getBirthday(), DateTimeUtils.YYYYMMDD));
+
+        return domain;
+    }
+
+    @Override
+    public void updateUserCommonInformById(CommonInformDomain domain, String id) {
+        String avatar = domain.getAvatar();
+        String role = domain.getRole();
+        String status = domain.getStatus();
+        EmployeeStatus employeeStatus = EmployeeStatus.getEmployeeStatusByValue(status);
+        UserEntity userEntity = userRepository.findById(StringUtils.convertObjectToLongOrNull(id)).orElse(null);
+        userEntity.setAvatar(avatar);
+        userEntity.setStatus(employeeStatus.getCode());
+        userRepository.save(userEntity);
+
+        AccountEntity accountEntity = accountRepository.findById(userEntity.getAccountId()).orElse(null);
+        UserRole userRole = UserRole.getRoleByValue(role);
+        RoleEntity roleEntity = roleRepository.findByName(userRole.getName());
+        accountEntity.setRoleId(roleEntity.getId());
+        accountRepository.save(accountEntity);
+    }
+
+    @Override
+    public void updateUserPersonalInform(UserPersonalInformDomain domain, String id) {
+        UserEntity userEntity = userRepository.findById(StringUtils.convertObjectToLongOrNull(id)).orElse(null);
+        String email = domain.getEmail();
+        AccountEntity checkExistAcc = accountRepository.findByEmail(email);
+        if (checkExistAcc != null) {
+            throw new CustomException(Error.EMAIL_EXIST.getMessage(), Error.EMAIL_EXIST.getCode(), HttpStatus.BAD_REQUEST);
+        }
+        String name = domain.getName();
+        Integer gender = Gender.getEmployeeStatusByValue(domain.getGender()).getCode();
+        String phone = domain.getPhone();
+        String idCard = domain.getIdCard();
+        String address = domain.getAddress();
+        Date dateOfBirth = DateTimeUtils.convertStringToDateOrNull(domain.getDateOfBirth(), DateTimeUtils.YYYYMMDD);
+
+        userEntity.setAddress(address);
+        userEntity.setIdCard(idCard);
+        userEntity.setBirthday(dateOfBirth);
+        userEntity.setGender(gender);
+        userEntity.setPhoneNumber(phone);
+        userEntity.setFullName(name);
+
+        userRepository.save(userEntity);
+
+        AccountEntity accountEntity = accountRepository.findById(userEntity.getAccountId()).orElse(null);
+        accountEntity.setEmail(email);
         accountRepository.save(accountEntity);
     }
 }

@@ -2,7 +2,9 @@ package com.example.hourlymaids.controller;
 
 import com.example.hourlymaids.config.ResponseDataAPI;
 import com.example.hourlymaids.domain.*;
+import com.example.hourlymaids.service.EmployeeServiceService;
 import com.example.hourlymaids.service.UserService;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     @Autowired
     private UserService userService;
+    @Autowired
+    private EmployeeServiceService employeeServiceService;
 
     @GetMapping(value = "/profile")
     public ResponseEntity<Object> getUserProfile() {
@@ -83,5 +87,66 @@ public class UserController {
         return ResponseEntity.ok(ResponseDataAPI.builder().build());
     }
 
+    @GetMapping("/list")
+    public ResponseEntity<Object> getListEmployee(@RequestParam(value = "offset") @ApiParam(value = "offset", example = "0") Integer offset,
+                                                  @RequestParam(value = "limit") @ApiParam(value = "limit", example = "10") Integer limit,
+                                                  @RequestParam(value = "status") @ApiParam(value = "status", example = "1") String status,
+                                                  @RequestParam(value = "value_search") @ApiParam(value = "valueSearch", example = "") String valueSearch,
+                                                  @RequestParam(value = "column_sort") @ApiParam(value = "columnSort", example = "TITLE") String columnSort,
+                                                  @RequestParam(value = "type_sort") @ApiParam(value = "typeSort", example = "ASC") String typeSort) {
+        Integer of = (offset == null || offset <= 1) ? 0 : offset - 1;
+        Integer lim = (limit == null || limit < 1) ? 10 : limit;
+        GetListRequest getListRequest = new GetListRequest();
+        getListRequest.setLimit(lim);
+        getListRequest.setOffset(of);
+        getListRequest.setColumnSort(columnSort);
+        getListRequest.setTypeSort(typeSort);
+        getListRequest.setValueSearch(valueSearch);
+        getListRequest.setStatus(status);
+        ResponseDataAPI responseDataAPI = userService.getListEmployee(getListRequest);
+        return ResponseEntity.ok(responseDataAPI);
+    }
 
+    @PostMapping("")
+    public ResponseEntity<Object> createEmployee(@RequestBody EmployeeListDomain employeeListDomain) {
+        userService.createUser(employeeListDomain);
+        return ResponseEntity.ok(ResponseDataAPI.builder().build());
+    }
+
+    @PutMapping("/change-status")
+    public ResponseEntity<Object> changeStatusEmployee(@RequestBody ChangeStatusEmployeeDomain domain) {
+        userService.changeStatusEmployee(domain);
+        return ResponseEntity.ok(ResponseDataAPI.builder().build());
+    }
+
+    @GetMapping("/common-inform/{user_id}")
+    public ResponseEntity<Object> getUserCommonInform(@PathVariable("user_id") String userId) {
+
+        return ResponseEntity.ok(ResponseDataAPI.builder().data(userService.getUserCommonInforById(userId)).build());
+    }
+
+    @GetMapping("/personal-inform/{user_id}")
+    public ResponseEntity<Object> getUserPersonalCommonInform(@PathVariable("user_id") String userId) {
+
+        return ResponseEntity.ok(ResponseDataAPI.builder().data(userService.getUserPersonalInformById(userId)).build());
+    }
+
+
+    @PutMapping("/common-inform/{user_id}")
+    public ResponseEntity<Object> updateUserCommonInformById(@PathVariable("user_id") String id, @RequestBody CommonInformDomain domain) {
+        userService.updateUserCommonInformById(domain, id);
+        return ResponseEntity.ok(ResponseDataAPI.builder().build());
+    }
+
+    @PutMapping("/personal-inform/{user_id}")
+    public ResponseEntity<Object> updateUserPersonalInformById(@PathVariable("user_id") String id, @RequestBody UserPersonalInformDomain domain) {
+        userService.updateUserPersonalInform(domain, id);
+        return ResponseEntity.ok(ResponseDataAPI.builder().build());
+    }
+
+    @GetMapping("/experience/{user_id}")
+    public ResponseEntity<Object> getListExperience(@PathVariable("user_id") String userId) {
+        return ResponseEntity.ok(employeeServiceService.getServiceListOfEmployee(userId));
+
+    }
 }

@@ -28,7 +28,12 @@ public enum Error {
     CANNOT_UPDATE_ANOTHER_FEEDBACL("S024", "Không thể cập nhật phản hồi của người khác"),
     INVALID_CONFIRM_PASS("S025", "Xác nhận mật khẩu không trùng với mật khẩu mới"),
     CONTENT_EMPTY("S026", "Nội dung trống, vui lòng thử lại"),
-    NOTIFY_NOT_FOUND("S027", "Không tìm thấy thông báo")
+    NOTIFY_NOT_FOUND("S027", "Không tìm thấy thông báo"),
+    EMAIL_EMPTY("S028", "Email trống, vui lòng thử lại"),
+    NAME_EMPTY("S029", "Họ và tên trống, vui lòng thử lại"),
+    PHONE_EMPTY("S030", "Số điện thoại trống, vui lòng thử lại"),
+    ROLE_EMPTY("S031", "Chức vụ trống, vui lòng thử lại")
+
     ;
 
 
