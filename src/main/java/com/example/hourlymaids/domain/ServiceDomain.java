@@ -11,6 +11,7 @@ public class ServiceDomain {
     private String note;
     private String banner;
     private String price;
+    private String createDate;
 
     public String getId() {
         return id;
@@ -50,5 +51,13 @@ public class ServiceDomain {
 
     public void setPrice(String price) {
         this.price = price;
+    }
+
+    public String getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(String createDate) {
+        this.createDate = createDate;
     }
 }

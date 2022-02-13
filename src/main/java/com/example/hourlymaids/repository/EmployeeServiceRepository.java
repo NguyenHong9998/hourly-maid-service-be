@@ -1,7 +1,10 @@
 package com.example.hourlymaids.repository;
 
 import com.example.hourlymaids.entity.EmployeeServiceEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -10,8 +13,8 @@ import java.util.List;
 public interface EmployeeServiceRepository extends JpaRepository<EmployeeServiceEntity, Long> {
     List<EmployeeServiceEntity> findByUserId(Long userId);
 
-    List<EmployeeServiceEntity> findByServiceId(Long serviceId);
-
+    @Query("select u, es.level from EmployeeServiceEntity es inner join UserEntity u on es.userId = u.id where es.serviceId = ?1")
+    Page<Object[]> findByServiceId(Long serviceId, Pageable pageable);
 
     void deleteByUserId(Long userId);
 }

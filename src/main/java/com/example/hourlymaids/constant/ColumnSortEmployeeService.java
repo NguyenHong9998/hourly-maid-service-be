@@ -1,15 +1,13 @@
 package com.example.hourlymaids.constant;
 
-public enum ColumnSortService {
-    NAME("serviceName", "NAME"),
-    PRICE("price", "PRICE"),
-    NOTE("note", "NOTE"),
-    CREATED_DATE("createdDate", "CREATE_DATE");
+public enum ColumnSortEmployeeService {
+    NAME("fullName", "NAME"),
+    LEVEL("level", "LEVEL");
 
     private String value;
     private String name;
 
-    ColumnSortService(String value, String name) {
+    ColumnSortEmployeeService(String value, String name) {
         this.value = value;
         this.name = name;
     }

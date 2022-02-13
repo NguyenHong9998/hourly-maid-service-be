@@ -5,6 +5,7 @@ import com.example.hourlymaids.constant.ColumnSortService;
 import com.example.hourlymaids.constant.ConstantDefine;
 import com.example.hourlymaids.constant.CustomException;
 import com.example.hourlymaids.constant.Error;
+import com.example.hourlymaids.domain.EmployeeServiceDomain;
 import com.example.hourlymaids.domain.GetListRequest;
 import com.example.hourlymaids.domain.ServiceDomain;
 import com.example.hourlymaids.entity.ServiceCompanyEntity;
@@ -37,7 +38,7 @@ public class ServiceCompanyServiceImpl implements ServiceCompanyService {
         request.setLimit(limit);
         request.setOffset(offset);
 
-        List<String> columnSort = Arrays.asList(ColumnSortService.NAME.getName(), ColumnSortService.PRICE.getName());
+        List<String> columnSort = Arrays.asList(ColumnSortService.NAME.getName(), ColumnSortService.PRICE.getName(), ColumnSortService.NOTE.getName(), ColumnSortService.PRICE.getName());
         Pageable pageable = null;
 
         if (columnSort.contains(request.getColumnSort())) {
@@ -45,10 +46,14 @@ public class ServiceCompanyServiceImpl implements ServiceCompanyService {
                 request.setColumnSort(ColumnSortService.NAME.getValue());
             } else if (ColumnSortService.PRICE.getName().equals(request.getColumnSort())) {
                 request.setColumnSort(ColumnSortService.NAME.getValue());
+            }else if(ColumnSortService.NOTE.getName().equals(request.getColumnSort())){
+                request.setColumnSort(ColumnSortService.NOTE.getValue());
+            }else if(ColumnSortService.CREATED_DATE.getName().equals(request.getColumnSort())){
+                request.setColumnSort(ColumnSortService.CREATED_DATE.getValue());
             }
             pageable = getPageable(request, pageable);
         } else {
-            pageable = PageRequest.of(request.getOffset(), request.getLimit(), Sort.by(ColumnSortService.NAME.getValue()).ascending());
+            pageable = PageRequest.of(request.getOffset(), request.getLimit(), Sort.by(ColumnSortService.CREATED_DATE.getValue()).descending());
         }
         String valueSearch = StringUtils.replaceSpecialCharacter(request.getValueSearch());
 
@@ -61,6 +66,7 @@ public class ServiceCompanyServiceImpl implements ServiceCompanyService {
             serviceDomain.setPrice(StringUtils.convertObjectToString(service.getPrice()));
             serviceDomain.setNote(service.getNote());
             serviceDomain.setBanner(service.getBanner());
+            serviceDomain.setCreateDate(StringUtils.convertDateToStringFormatyyyyMMdd(service.getCreatedDate()));
             return serviceDomain;
         }).collect(Collectors.toList());
 
@@ -101,6 +107,7 @@ public class ServiceCompanyServiceImpl implements ServiceCompanyService {
         serviceDomain.setNote(entity.getNote());
         serviceDomain.setPrice(StringUtils.convertObjectToString(entity.getPrice()));
         serviceDomain.setId(entity.getId().toString());
+        serviceDomain.setName(entity.getServiceName());
 
         return serviceDomain;
     }
@@ -127,7 +134,7 @@ public class ServiceCompanyServiceImpl implements ServiceCompanyService {
         serviceCompanyEntity.setServiceName(domain.getName());
         serviceCompanyEntity.setNote(domain.getNote());
         serviceCompanyEntity.setPrice(StringUtils.convertStringToLongOrNull(domain.getPrice()));
-        serviceCompanyEntity.setBanner(domain.getBanner());
+        serviceCompanyEntity.setBanner(StringUtils.isEmpty(domain.getBanner()) ? "https://giupviecnhahcm.com/wp-content/uploads/2017/03/nhan-vien-giup-viec-248x300.png" : domain.getBanner());
         serviceCompanyEntity.setUpdatedBy(UserUtils.getCurrentUserId());
         serviceCompanyEntity.setUpdatedDate(new Date());
 
@@ -148,8 +155,10 @@ public class ServiceCompanyServiceImpl implements ServiceCompanyService {
         serviceCompanyEntity.setServiceName(domain.getName());
         serviceCompanyEntity.setNote(domain.getNote());
         serviceCompanyEntity.setPrice(StringUtils.convertStringToLongOrNull(domain.getPrice()));
-        serviceCompanyEntity.setBanner(domain.getBanner());
+
+        serviceCompanyEntity.setBanner(StringUtils.isEmpty(domain.getBanner()) ? "https://giupviecnhahcm.com/wp-content/uploads/2017/03/nhan-vien-giup-viec-248x300.png" : domain.getBanner());
 
         serviceCompanyRepository.save(serviceCompanyEntity);
     }
+
 }

@@ -3,6 +3,7 @@ package com.example.hourlymaids.controller;
 import com.example.hourlymaids.config.ResponseDataAPI;
 import com.example.hourlymaids.domain.GetListRequest;
 import com.example.hourlymaids.domain.ServiceDomain;
+import com.example.hourlymaids.service.EmployeeServiceService;
 import com.example.hourlymaids.service.ServiceCompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,9 @@ public class ServiceCompanyController {
 
     @Autowired
     private ServiceCompanyService service;
+
+    @Autowired
+    private EmployeeServiceService employeeServiceService;
 
     @GetMapping("")
     public ResponseEntity<ResponseDataAPI> getListService(@RequestParam(value = "offset", required = false) Integer offset,
@@ -41,6 +45,21 @@ public class ServiceCompanyController {
     public ResponseEntity<ResponseDataAPI> createService(@RequestBody ServiceDomain domain) {
         service.createService(domain);
         return ResponseEntity.ok(ResponseDataAPI.builder().build());
+    }
+
+    @GetMapping("/{service_id}/employee")
+    public ResponseEntity<ResponseDataAPI> getListEmployeeOfService(@PathVariable("service_id") String serviceId, @RequestParam(value = "type_sort", required = false) String typeSort,
+                                                                    @RequestParam(value = "column_sort", required = false) String columnSort) {
+
+        return ResponseEntity.ok(ResponseDataAPI.builder().data(employeeServiceService.getListUserOfServiceId(serviceId, columnSort, typeSort)).build());
+    }
+
+
+    @GetMapping("/{service_id}/discount")
+    public ResponseEntity<ResponseDataAPI> getListDiscountOfService(@PathVariable("service_id") String serviceId, @RequestParam(value = "type_sort", required = false) String typeSort,
+                                                                    @RequestParam(value = "column_sort", required = false) String columnSort) {
+
+        return ResponseEntity.ok(ResponseDataAPI.builder().data(employeeServiceService.getListDiscountOfService(serviceId, columnSort, typeSort)).build());
     }
 
 }
