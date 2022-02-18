@@ -32,8 +32,9 @@ public enum Error {
     EMAIL_EMPTY("S028", "Email trống, vui lòng thử lại"),
     NAME_EMPTY("S029", "Họ và tên trống, vui lòng thử lại"),
     PHONE_EMPTY("S030", "Số điện thoại trống, vui lòng thử lại"),
-    ROLE_EMPTY("S031", "Chức vụ trống, vui lòng thử lại")
-
+    ROLE_EMPTY("S031", "Chức vụ trống, vui lòng thử lại"),
+    DISCOUNT_TITLE_EMPTY("S032", "Tên chương trình trống, vui lòng thử lại"),
+    EMPTY_NOTE("S033", "Ghi chú lí do nghỉ trống, vui lòng hãy thử lại")
     ;
 
 

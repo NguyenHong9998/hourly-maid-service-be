@@ -1,9 +1,7 @@
 package com.example.hourlymaids.service;
 
 import com.example.hourlymaids.config.ResponseDataAPI;
-import com.example.hourlymaids.constant.ColumnSortDiscount;
-import com.example.hourlymaids.constant.ConstantDefine;
-import com.example.hourlymaids.constant.CustomException;
+import com.example.hourlymaids.constant.*;
 import com.example.hourlymaids.constant.Error;
 import com.example.hourlymaids.domain.DiscountDomain;
 import com.example.hourlymaids.domain.GetListRequest;
@@ -24,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,13 +69,16 @@ public class DiscountServiceImpl implements DiscountService {
 
         List<Object> result = entities.stream().map(discountEntity -> {
             DiscountDomain domain = new DiscountDomain();
+            domain.setId(discountEntity.getId().toString());
             domain.setBanner(discountEntity.getBanner());
             domain.setNote(discountEntity.getNote());
             domain.setStartTime(StringUtils.convertDateToStringFormatPattern(discountEntity.getStartTime(), DateTimeUtils.YYYYMMDDhhmmss));
             domain.setEndTime(StringUtils.convertDateToStringFormatPattern(discountEntity.getEndTime(), DateTimeUtils.YYYYMMDDhhmmss));
             domain.setTitle(discountEntity.getTitle());
             domain.setBanner(discountEntity.getBanner());
-            domain.setPublic(discountEntity.getIsPublic() == 1 ? true : false);
+            domain.setPublic(DiscountStatus.getDiscountStatusByCode(discountEntity.getIsPublic()).getValue());
+            Integer numService = serviceDiscountRepository.findByDiscountId(discountEntity.getId()).size();
+            domain.setNumberService(numService.toString());
             return domain;
         }).collect(Collectors.toList());
 
@@ -106,7 +108,7 @@ public class DiscountServiceImpl implements DiscountService {
 
         String title = domain.getTitle();
         if (StringUtils.isEmpty(title)) {
-            throw new CustomException(Error.TITLE_EMPTY.getMessage(), Error.TITLE_EMPTY.getCode(), HttpStatus.BAD_REQUEST);
+            throw new CustomException(Error.DISCOUNT_TITLE_EMPTY.getMessage(), Error.DISCOUNT_TITLE_EMPTY.getCode(), HttpStatus.BAD_REQUEST);
         }
 
         Date startDate = DateTimeUtils.convertStringToDateOrNull(domain.getStartTime(), DateTimeUtils.YYYYMMDDhhmmss);
@@ -118,18 +120,18 @@ public class DiscountServiceImpl implements DiscountService {
         discountEntity.setEndTime(endDate);
         discountEntity.setStartTime(startDate);
         discountEntity.setNote(domain.getNote());
-        discountEntity.setBanner(domain.getBanner());
+        discountEntity.setBanner(StringUtils.isEmpty(domain.getBanner()) ? "https://cdn-www.vinid.net/2020/09/164e51ba-2-top-banner-1920x1080-1.jpg" : domain.getBanner());
         discountEntity.setTitle(domain.getTitle());
+        discountEntity.setIsPublic(DiscountStatus.INACTIVE.getCode());
         discountEntity = discountRepository.save(discountEntity);
-
 
         List<ServiceDiscountEntity> serviceDiscountEntities = new ArrayList<>();
         for (ServiceParamDomain service : domain.getServiceList()) {
-            Long serviceId = StringUtils.convertStringToLongOrNull(service.getId());
-            if (serviceId == null) {
+            String serviceName = service.getName();
+            if (StringUtils.isEmpty(serviceName)) {
                 throw new CustomException(Error.SERVICES_NOT_EXIST.getMessage(), Error.SERVICES_NOT_EXIST.getCode(), HttpStatus.BAD_REQUEST);
             }
-            ServiceCompanyEntity serviceCompanyEntity = serviceCompanyRepository.findById(serviceId).orElse(null);
+            ServiceCompanyEntity serviceCompanyEntity = serviceCompanyRepository.findByServiceName(serviceName);
             if (serviceCompanyEntity == null) {
                 throw new CustomException(Error.PARAMETER_INVALID.getMessage(), Error.PARAMETER_INVALID.getCode(), HttpStatus.BAD_REQUEST);
             }
@@ -143,6 +145,7 @@ public class DiscountServiceImpl implements DiscountService {
         serviceDiscountRepository.saveAll(serviceDiscountEntities);
     }
 
+    @Transactional
     @Override
     public void updateDiscount(String discountId, DiscountDomain domain) {
         Long id = StringUtils.convertStringToLongOrNull(discountId);
@@ -179,10 +182,10 @@ public class DiscountServiceImpl implements DiscountService {
             serviceDiscountRepository.deleteByDiscountId(id);
             List<ServiceDiscountEntity> serviceDiscountEntities = new ArrayList<>();
             for (ServiceParamDomain service : domain.getServiceList()) {
-                if (service.getId() == null) {
+                if (StringUtils.isEmpty(service.getName())) {
                     throw new CustomException(Error.SERVICES_NOT_EXIST.getMessage(), Error.SERVICES_NOT_EXIST.getCode(), HttpStatus.BAD_REQUEST);
                 }
-                ServiceCompanyEntity serviceCompanyEntity = serviceCompanyRepository.findById(id).orElse(null);
+                ServiceCompanyEntity serviceCompanyEntity = serviceCompanyRepository.findByServiceName(service.getName());
                 if (serviceCompanyEntity == null) {
                     throw new CustomException(Error.PARAMETER_INVALID.getMessage(), Error.PARAMETER_INVALID.getCode(), HttpStatus.BAD_REQUEST);
                 }
@@ -214,7 +217,7 @@ public class DiscountServiceImpl implements DiscountService {
         domain.setEndTime(StringUtils.convertDateToStringFormatPattern(discountEntity.getEndTime(), DateTimeUtils.YYYYMMDDhhmmss));
         domain.setStartTime(StringUtils.convertDateToStringFormatPattern(discountEntity.getStartTime(), DateTimeUtils.YYYYMMDDhhmmss));
         domain.setNote(discountEntity.getNote());
-        domain.setPublic(discountEntity.getIsPublic() == 1 ? true : false);
+//        domain.setPublic(discountEntity.getIsPublic() == 1 ? true : false);
         List<ServiceParamDomain> discountEntities = serviceDiscountRepository.findByDiscountId(id).stream().map(s -> {
             ServiceParamDomain serviceParamDomain = new ServiceParamDomain();
             ServiceCompanyEntity serviceCompanyEntity = (ServiceCompanyEntity) s[0];

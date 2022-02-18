@@ -34,6 +34,10 @@ public class DateTimeUtils {
 
     public static String MMDDYYYY = "MM-dd-yyyy";
 
+    public static String DDMMYYYY = "dd-MM-yyyy";
+    public static String DDMMYYYYHHMMSS = "dd-MM-yyyy HH:mm:ss";
+
+
     /**
      * Convert String To Date Or Null
      *

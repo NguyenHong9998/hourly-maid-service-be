@@ -14,7 +14,8 @@ public class DiscountDomain {
     private String note;
     private String title;
     private String banner;
-    private Boolean isPublic;
+    private String isPublic;
+    private String numberService;
 
     public String getId() {
         return id;
@@ -72,12 +73,27 @@ public class DiscountDomain {
         this.banner = banner;
     }
 
-    public Boolean getPublic() {
+    public String getPublic() {
         return isPublic;
     }
 
-    public void setPublic(Boolean aPublic) {
+    public void setPublic(String aPublic) {
         isPublic = aPublic;
     }
 
+    public String getIsPublic() {
+        return isPublic;
+    }
+
+    public void setIsPublic(String isPublic) {
+        this.isPublic = isPublic;
+    }
+
+    public String getNumberService() {
+        return numberService;
+    }
+
+    public void setNumberService(String numberService) {
+        this.numberService = numberService;
+    }
 }

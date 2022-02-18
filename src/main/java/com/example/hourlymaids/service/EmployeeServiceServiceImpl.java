@@ -66,6 +66,7 @@ public class EmployeeServiceServiceImpl implements EmployeeServiceService {
         return domains;
     }
 
+
     @Override
     public List<EmployeeServiceDomain> getListUserOfServiceId(String serviceId, String typeSort, String columnSort) {
         Long service = StringUtils.convertStringToLongOrNull(serviceId);
@@ -168,7 +169,7 @@ public class EmployeeServiceServiceImpl implements EmployeeServiceService {
             throw new CustomException(Error.PARAMETER_INVALID.getMessage(), Error.PARAMETER_INVALID.getCode(), HttpStatus.BAD_REQUEST);
         }
         GetListRequest request = new GetListRequest();
-        request.setOffset(1);
+        request.setOffset(0);
         request.setLimit(1000);
 
         List<String> columnSorts = Arrays.asList(ColumnSortDiscountService.TITLE.getName(), ColumnSortDiscountService.START_TIME.getName(),
