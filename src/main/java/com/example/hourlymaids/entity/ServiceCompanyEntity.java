@@ -20,6 +20,10 @@ public class ServiceCompanyEntity extends BaseEntity {
     private Long price;
     @Column(name = "NOTE")
     private String note;
+    @Column(name = "INTRODUCE")
+    private String introduce;
+    @Column(name = "ADVANTAGE")
+    private String advantages;
     @Column(name = "BANNER")
     private String banner;
     @Column(name = "PERCENT")
@@ -71,5 +75,21 @@ public class ServiceCompanyEntity extends BaseEntity {
 
     public void setPercent(Integer percent) {
         this.percent = percent;
+    }
+
+    public String getIntroduce() {
+        return introduce;
+    }
+
+    public void setIntroduce(String introduce) {
+        this.introduce = introduce;
+    }
+
+    public String getAdvantages() {
+        return advantages;
+    }
+
+    public void setAdvantages(String advantages) {
+        this.advantages = advantages;
     }
 }

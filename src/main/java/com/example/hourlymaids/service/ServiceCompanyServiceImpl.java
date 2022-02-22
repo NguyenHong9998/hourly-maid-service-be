@@ -112,6 +112,8 @@ public class ServiceCompanyServiceImpl implements ServiceCompanyService {
         serviceDomain.setPrice(StringUtils.convertObjectToString(entity.getPrice()));
         serviceDomain.setId(entity.getId().toString());
         serviceDomain.setName(entity.getServiceName());
+        serviceDomain.setAdvantage(entity.getAdvantages());
+        serviceDomain.setIntroduces(entity.getIntroduce());
 
         return serviceDomain;
     }
@@ -141,6 +143,8 @@ public class ServiceCompanyServiceImpl implements ServiceCompanyService {
         serviceCompanyEntity.setBanner(StringUtils.isEmpty(domain.getBanner()) ? "https://giupviecnhahcm.com/wp-content/uploads/2017/03/nhan-vien-giup-viec-248x300.png" : domain.getBanner());
         serviceCompanyEntity.setUpdatedBy(UserUtils.getCurrentUserId());
         serviceCompanyEntity.setUpdatedDate(new Date());
+        serviceCompanyEntity.setIntroduce(domain.getIntroduces());
+        serviceCompanyEntity.setAdvantages(domain.getAdvantage());
 
         serviceCompanyRepository.save(serviceCompanyEntity);
     }
@@ -159,7 +163,8 @@ public class ServiceCompanyServiceImpl implements ServiceCompanyService {
         serviceCompanyEntity.setServiceName(domain.getName());
         serviceCompanyEntity.setNote(domain.getNote());
         serviceCompanyEntity.setPrice(StringUtils.convertStringToLongOrNull(domain.getPrice()));
-
+        serviceCompanyEntity.setAdvantages(domain.getAdvantage());
+        serviceCompanyEntity.setIntroduce(domain.getIntroduces());
         serviceCompanyEntity.setBanner(StringUtils.isEmpty(domain.getBanner()) ? "https://giupviecnhahcm.com/wp-content/uploads/2017/03/nhan-vien-giup-viec-248x300.png" : domain.getBanner());
 
         serviceCompanyRepository.save(serviceCompanyEntity);

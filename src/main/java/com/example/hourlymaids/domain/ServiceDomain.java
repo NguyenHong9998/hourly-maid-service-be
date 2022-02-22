@@ -13,6 +13,8 @@ public class ServiceDomain {
     private String price;
     private String createDate;
     private String numTask;
+    private String advantage;
+    private String introduces;
 
     public String getId() {
         return id;
@@ -68,5 +70,21 @@ public class ServiceDomain {
 
     public void setNumTask(String numTask) {
         this.numTask = numTask;
+    }
+
+    public String getAdvantage() {
+        return advantage;
+    }
+
+    public void setAdvantage(String advantage) {
+        this.advantage = advantage;
+    }
+
+    public String getIntroduces() {
+        return introduces;
+    }
+
+    public void setIntroduces(String introduces) {
+        this.introduces = introduces;
     }
 }
