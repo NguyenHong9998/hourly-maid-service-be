@@ -147,6 +147,15 @@ public class UserController {
     @GetMapping("/experience/{user_id}")
     public ResponseEntity<Object> getListExperience(@PathVariable("user_id") String userId) {
         return ResponseEntity.ok(employeeServiceService.getServiceListOfEmployee(userId));
+    }
 
+      @GetMapping("/overview")
+    private ResponseEntity<Object> getOveriewOfFeedbackUser(@RequestParam("start_date") String startDate, @RequestParam("end_date") String endDate) {
+        return ResponseEntity.ok(ResponseDataAPI.builder().data(userService.getOveriewOfFeedbackUser(startDate, endDate)).build());
+    }
+
+    @GetMapping("/overview/detail")
+     private ResponseEntity<Object> getOveriewDetailOfFeedbackuser(@RequestParam("start_date") String startDate, @RequestParam("end_date") String endDate) {
+        return ResponseEntity.ok(ResponseDataAPI.builder().data(userService.getOveriewDetailOfFeedbackuser(startDate, endDate)).build());
     }
 }

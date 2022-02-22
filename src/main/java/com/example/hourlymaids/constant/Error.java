@@ -22,7 +22,7 @@ public enum Error {
     DUPLICATE_SERVICE_NAME("S018", "Tên dịch vụ trống hoặc đã tồn tại"),
     TITLE_EMPTY("S019", "Tiêu đề trống, vui lòng thử lại"),
     START_TIME_OR_DATE_TIME_INVALID("S020", "Thời gian diễn ra chương trình giảm giá không hợp lệ"),
-    DISCOUNT_NOT_EXIST("S021" , "Không tìm thấy chương trình giảm giá nào"),
+    DISCOUNT_NOT_EXIST("S021", "Không tìm thấy chương trình giảm giá nào"),
     ADDRESS_NOT_FOUND("S022", "Không tìm thấy địa chỉ hợp lệ"),
     CoNTENT_FEEDBACk_NULL("S023", "Nội dung phản hồi trống"),
     CANNOT_UPDATE_ANOTHER_FEEDBACL("S024", "Không thể cập nhật phản hồi của người khác"),
@@ -34,7 +34,10 @@ public enum Error {
     PHONE_EMPTY("S030", "Số điện thoại trống, vui lòng thử lại"),
     ROLE_EMPTY("S031", "Chức vụ trống, vui lòng thử lại"),
     DISCOUNT_TITLE_EMPTY("S032", "Tên chương trình trống, vui lòng thử lại"),
-    EMPTY_NOTE("S033", "Ghi chú lí do nghỉ trống, vui lòng hãy thử lại")
+    EMPTY_NOTE("S033", "Ghi chú lí do nghỉ trống, vui lòng hãy thử lại"),
+    EMAIL_OR_PHONE_EMPTY("S034", "Email hoặc số điện thoại trống, vui lòng thử lại"),
+    PHONE_EXISTED("S035","Số điện thoại đã tồn tại, vui lòng thử lại")
+
     ;
 
 

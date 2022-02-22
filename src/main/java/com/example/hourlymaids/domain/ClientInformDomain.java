@@ -1,21 +1,17 @@
 package com.example.hourlymaids.domain;
 
-import com.example.hourlymaids.util.StringUtils;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class UserInformDomain {
-    private String id;
+
+public class ClientInformDomain {
     private String email;
     private String phone;
-    private String password;
     private String fullName;
     private String avatar;
     private String gender;
-    private String roleId;
     private String birthday;
-    private String numStar;
 
     public String getEmail() {
         return email;
@@ -31,14 +27,6 @@ public class UserInformDomain {
 
     public void setPhone(String phone) {
         this.phone = phone;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getFullName() {
@@ -65,43 +53,11 @@ public class UserInformDomain {
         this.gender = gender;
     }
 
-    public String getRoleId() {
-        return roleId;
-    }
-
-    public void setRoleId(String roleId) {
-        this.roleId = roleId;
-    }
-
     public String getBirthday() {
         return birthday;
     }
 
     public void setBirthday(String birthday) {
         this.birthday = birthday;
-    }
-
-    public boolean isValidUser(UserInformDomain domain) {
-        if (StringUtils.isEmpty(domain.getEmail()) || StringUtils.isEmpty(domain.password) || StringUtils.isEmpty(domain.getPhone()) ||
-                StringUtils.isEmpty(domain.getFullName()) || StringUtils.isEmpty(domain.getRoleId())) {
-            return false;
-        }
-        return true;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getNumStar() {
-        return numStar;
-    }
-
-    public void setNumStar(String numStar) {
-        this.numStar = numStar;
     }
 }

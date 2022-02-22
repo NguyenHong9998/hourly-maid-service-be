@@ -3,11 +3,9 @@ package com.example.hourlymaids.service;
 import com.example.hourlymaids.config.ResponseDataAPI;
 import com.example.hourlymaids.constant.*;
 import com.example.hourlymaids.constant.Error;
-import com.example.hourlymaids.domain.DiscountDomain;
-import com.example.hourlymaids.domain.GetListRequest;
-import com.example.hourlymaids.domain.ServiceDomain;
-import com.example.hourlymaids.domain.ServiceParamDomain;
+import com.example.hourlymaids.domain.*;
 import com.example.hourlymaids.entity.DiscountEntity;
+import com.example.hourlymaids.entity.NotifyEntity;
 import com.example.hourlymaids.entity.ServiceCompanyEntity;
 import com.example.hourlymaids.entity.ServiceDiscountEntity;
 import com.example.hourlymaids.repository.DiscountRepository;
@@ -68,6 +66,10 @@ public class DiscountServiceImpl implements DiscountService {
         Page<DiscountEntity> entities = discountRepository.findAllDiscount(valueSearch, pageable);
 
         List<Object> result = entities.stream().map(discountEntity -> {
+            if (discountEntity.getEndTime().getTime() <= new Date().getTime()) {
+                discountEntity.setIsPublic(2);
+                discountEntity = discountRepository.save(discountEntity);
+            }
             DiscountDomain domain = new DiscountDomain();
             domain.setId(discountEntity.getId().toString());
             domain.setBanner(discountEntity.getBanner());
@@ -229,5 +231,17 @@ public class DiscountServiceImpl implements DiscountService {
         }).collect(Collectors.toList());
         domain.setServiceList(discountEntities);
         return domain;
+    }
+
+    @Override
+    public void changeStatusDiscount(ChangeNotifyStatusDomain domain) {
+        Long id = StringUtils.convertObjectToLongOrNull(domain.getId());
+
+        DiscountEntity discountEntity = discountRepository.findById(id).orElse(null);
+        if (discountEntity == null) {
+            throw new CustomException(Error.NOTIFY_NOT_FOUND.getMessage(), Error.NOTIFY_NOT_FOUND.getCode(), HttpStatus.BAD_REQUEST);
+        }
+        discountEntity.setIsPublic(DiscountStatus.ACTIVE.getCode());
+        discountRepository.save(discountEntity);
     }
 }

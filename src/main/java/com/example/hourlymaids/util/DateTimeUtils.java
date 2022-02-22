@@ -7,7 +7,9 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 public class DateTimeUtils {
@@ -120,5 +122,15 @@ public class DateTimeUtils {
         } catch (Exception e) {
             return 0L;
         }
+    }
+    public static List<Date> getDatesBetweenDateRange(Date startDate, Date endDate) {
+        List<Date> dateList = new ArrayList<>();
+        Long startMillisecond = startDate.getTime();
+        Long endMillisecond = endDate.getTime();
+
+        for (; startMillisecond <= endMillisecond; startMillisecond += 86400000) {
+            dateList.add(new Date(startMillisecond));
+        }
+        return dateList;
     }
 }

@@ -14,17 +14,16 @@ public class TaskEntity extends BaseEntity {
     @SequenceGenerator(name = "TASK_SEQ", sequenceName = "TASK_SEQ", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "TASK_SEQ")
     private Long id;
-    @Column(name = "SERVICE_ID")
-    private Long serviceId;
-    @Column(name = "ADDRESS_ID")
-    private Long addressId;
+    @Column(name = "ADDRESS")
+    private String address;
     @Column(name = "USER_ID")
     private Long userId;
-    @Column(name = "PRICE")
-    private Long price;
     @Column(name = "ASSIGN_EMPLOYEE_TIME")
     @Temporal(TemporalType.TIMESTAMP)
     private Date assignEmployeeTime;
+    @Column(name = "WORK_DATE")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date workDate;
     @Column(name = "START_TIME")
     @Temporal(TemporalType.TIMESTAMP)
     private Date startTime;
@@ -33,6 +32,14 @@ public class TaskEntity extends BaseEntity {
     @Column(name = "COMPLETE_TIME")
     @Temporal(TemporalType.TIMESTAMP)
     private Date completeTime;
+    @Column(name = "CANCEL_TIME")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date cancelTime;
+    @Column(name = "PAID_TIME")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date paidTime;
+    @Column(name = "NOTE")
+    private String note;
 
     public Long getId() {
         return id;
@@ -42,28 +49,12 @@ public class TaskEntity extends BaseEntity {
         this.id = id;
     }
 
-    public Long getServiceId() {
-        return serviceId;
-    }
-
-    public void setServiceId(Long serviceId) {
-        this.serviceId = serviceId;
-    }
-
     public Long getUserId() {
         return userId;
     }
 
     public void setUserId(Long userId) {
         this.userId = userId;
-    }
-
-    public Long getPrice() {
-        return price;
-    }
-
-    public void setPrice(Long price) {
-        this.price = price;
     }
 
     public Date getAssignEmployeeTime() {
@@ -98,11 +89,45 @@ public class TaskEntity extends BaseEntity {
         this.completeTime = completeTime;
     }
 
-    public Long getAddressId() {
-        return addressId;
+    public Date getWorkDate() {
+        return workDate;
     }
 
-    public void setAddressId(Long addressId) {
-        this.addressId = addressId;
+    public void setWorkDate(Date workDate) {
+        this.workDate = workDate;
+    }
+
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public Date getCancelTime() {
+        return cancelTime;
+    }
+
+    public void setCancelTime(Date cancelTime) {
+        this.cancelTime = cancelTime;
+    }
+
+    public Date getPaidTime() {
+        return paidTime;
+    }
+
+    public void setPaidTime(Date paidTime) {
+        this.paidTime = paidTime;
+    }
+
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 }

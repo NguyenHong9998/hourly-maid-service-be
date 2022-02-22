@@ -17,7 +17,5 @@ public interface LeaveDateRepository extends JpaRepository<LeaveDateEntity, Long
 
     @Query("select distinct l.leaveDate from  LeaveDateEntity l")
     List<Date> getListLeaveDate();
-//
-//    @Query("select ld, u.fullName, u.avatar, u.id from LeaveDateEntity ld left join UserEntity u on ld.userId = u.id where ld.id =?1")
-//    List<Object> getLeaveDateInform(Long leaveId);
+
 }

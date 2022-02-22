@@ -3,6 +3,8 @@ package com.example.hourlymaids.service;
 import com.example.hourlymaids.config.ResponseDataAPI;
 import com.example.hourlymaids.domain.*;
 
+import java.util.List;
+
 public interface UserService {
     LoginResponse checkLogin(LoginUser loginUser) throws Exception;
 
@@ -47,4 +49,8 @@ public interface UserService {
     void updateUserCommonInformById(CommonInformDomain domain, String id);
 
     void updateUserPersonalInform(UserPersonalInformDomain domain, String id);
+
+    List<UserInformDomain> getOveriewDetailOfFeedbackuser(String startDate, String endDate);
+
+    UserOverviewDomain getOveriewOfFeedbackUser(String startDate, String endDate);
 }

@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>Sending Email with Thymeleaf HTML Template Example</title>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+
+    <!-- use the font -->
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            font-size: 48px;
+        }
+    </style>
+</head>
+<body style="margin: 0; padding: 0;">
+<table  align="center" border="0" cellpadding="0" cellspacing="0" width="600"
+       style="border-collapse: collapse;">
+    <tr>
+        <td bgcolor="#eaeaea" style="padding: 40px 30px 40px 30px;">
+            <p>Xin chào <b th:text="${username}"></b>,</p>
+            <p>CleanMe mời bạn tham gia vào hệ thống quản lý với chức vụ là <b th:text="${role}"></b></p>
+            <p>Đây là thông tin tài khoản đăng nhập của bạn</p>
+            <p>Không chia sẻ thông tin này cho ai khác.</p>
+            <p>Email: <b th:text="${email}"></b></p>
+            <p>Mật khẩu: <b th:text="${password}"></b></p>
+            <p>Bạn có thể đăng nhập CleanMe theo đường link sau: <a th:href=${linkCms}><b th:text="${linkCms}"></b></a>
+            </p>
+            <p>
+                <br>
+                Xin cảm ơn,
+            </p>
+            <p>CleanMe</p>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>
+

@@ -5,11 +5,13 @@ import com.example.hourlymaids.constant.ColumnSortService;
 import com.example.hourlymaids.constant.ConstantDefine;
 import com.example.hourlymaids.constant.CustomException;
 import com.example.hourlymaids.constant.Error;
-import com.example.hourlymaids.domain.EmployeeServiceDomain;
-import com.example.hourlymaids.domain.GetListRequest;
-import com.example.hourlymaids.domain.ServiceDomain;
+import com.example.hourlymaids.domain.*;
 import com.example.hourlymaids.entity.ServiceCompanyEntity;
+import com.example.hourlymaids.entity.ServiceTaskEntity;
+import com.example.hourlymaids.entity.TaskEntity;
 import com.example.hourlymaids.repository.ServiceCompanyRepository;
+import com.example.hourlymaids.repository.ServiceTaskRepository;
+import com.example.hourlymaids.util.DateTimeUtils;
 import com.example.hourlymaids.util.StringUtils;
 import com.example.hourlymaids.util.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,15 +22,17 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.text.DecimalFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class ServiceCompanyServiceImpl implements ServiceCompanyService {
     @Autowired
     private ServiceCompanyRepository serviceCompanyRepository;
+
+    @Autowired
+    private ServiceTaskRepository serviceTaskRepository;
 
     @Override
     public ResponseDataAPI getListService(GetListRequest request) {
@@ -46,9 +50,9 @@ public class ServiceCompanyServiceImpl implements ServiceCompanyService {
                 request.setColumnSort(ColumnSortService.NAME.getValue());
             } else if (ColumnSortService.PRICE.getName().equals(request.getColumnSort())) {
                 request.setColumnSort(ColumnSortService.NAME.getValue());
-            }else if(ColumnSortService.NOTE.getName().equals(request.getColumnSort())){
+            } else if (ColumnSortService.NOTE.getName().equals(request.getColumnSort())) {
                 request.setColumnSort(ColumnSortService.NOTE.getValue());
-            }else if(ColumnSortService.CREATED_DATE.getName().equals(request.getColumnSort())){
+            } else if (ColumnSortService.CREATED_DATE.getName().equals(request.getColumnSort())) {
                 request.setColumnSort(ColumnSortService.CREATED_DATE.getValue());
             }
             pageable = getPageable(request, pageable);
@@ -161,4 +165,84 @@ public class ServiceCompanyServiceImpl implements ServiceCompanyService {
         serviceCompanyRepository.save(serviceCompanyEntity);
     }
 
+    @Override
+    public List<ServiceOverviewDetailDomain> getOverviewDetailOfService(String startDate, String endDate) {
+        Date start = DateTimeUtils.convertStringToDateOrNull(startDate, DateTimeUtils.YYYYMMDD);
+        Date end = DateTimeUtils.convertStringToDateOrNull(endDate, DateTimeUtils.YYYYMMDD);
+        List<Date> dateList = DateTimeUtils.getDatesBetweenDateRange(start, end);
+        List<ServiceOverviewDetailDomain> details = new ArrayList<>();
+        List<ServiceCompanyEntity> serviceCompanyEntities = serviceCompanyRepository.findAll();
+        List<ServiceTaskEntity> serviceTaskEntities = serviceTaskRepository.findAll();
+
+        for (ServiceCompanyEntity serviceCompanyEntity : serviceCompanyEntities) {
+            ServiceOverviewDetailDomain domain = new ServiceOverviewDetailDomain();
+            List<ItemOnDateDomain> itemList = new ArrayList<>();
+            for (Date date : dateList) {
+                ItemOnDateDomain item = new ItemOnDateDomain();
+                item.setDate(StringUtils.convertDateToStringFormatPattern(date, DateTimeUtils.DDMMYYYY));
+                Integer num = serviceTaskEntities.stream().filter(t -> t.getServiceId() == serviceCompanyEntity.getId() && t.getCreatedDate().getTime() == date.getTime())
+                        .collect(Collectors.toList()).size();
+                item.setNumber(StringUtils.convertObjectToString(num));
+                itemList.add(item);
+            }
+            domain.setDetails(itemList);
+            domain.setService(serviceCompanyEntity.getServiceName());
+            details.add(domain);
+        }
+        return details;
+    }
+
+    @Override
+    public OverviewServiceDomain getServiceOverviewDetail(String startDate, String endDate) {
+        OverviewServiceDomain overviewTaskDomain = new OverviewServiceDomain();
+        Date start = DateTimeUtils.convertStringToDateOrNull(startDate, DateTimeUtils.YYYYMMDD);
+        Date end = DateTimeUtils.convertStringToDateOrNull(endDate, DateTimeUtils.YYYYMMDD);
+        List<ServiceCompanyEntity> serviceCompanyEntities = serviceCompanyRepository.findAll();
+        overviewTaskDomain.setNumService(StringUtils.convertObjectToString(serviceCompanyEntities.size()));
+        List<ServiceTaskEntity> serviceTaskEntities = serviceTaskRepository.findAll();
+        Map.Entry<Long, Long> maxTaskPerService = serviceTaskEntities.stream().collect(Collectors.groupingBy(t -> t.getServiceId(), Collectors.counting())).entrySet()
+                .stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).findFirst().get();
+        Long maxServiceId = maxTaskPerService.getKey();
+        ServiceCompanyEntity maxService = serviceCompanyRepository.findById(maxServiceId).orElse(null);
+        ServiceDomain maxDomain = new ServiceDomain();
+        maxDomain.setName(maxService.getServiceName());
+        maxDomain.setBanner(maxService.getBanner());
+        maxDomain.setNumTask(StringUtils.convertObjectToString(maxTaskPerService.getValue()));
+        overviewTaskDomain.setMaxService(maxDomain);
+
+        Map.Entry<Long, Long> minTaskPerService = serviceTaskEntities.stream().collect(Collectors.groupingBy(t -> t.getServiceId(), Collectors.counting())).entrySet()
+                .stream().sorted(Comparator.comparing(Map.Entry::getValue)).findFirst().get();
+        Long minServiceId = minTaskPerService.getKey();
+        ServiceCompanyEntity minService = serviceCompanyRepository.findById(minServiceId).orElse(null);
+        ServiceDomain minDomain = new ServiceDomain();
+        minDomain.setName(minService.getServiceName());
+        minDomain.setBanner(minService.getBanner());
+        minDomain.setNumTask(StringUtils.convertObjectToString(minTaskPerService.getValue()));
+        overviewTaskDomain.setMinService(minDomain);
+
+        List<Date> dateList = DateTimeUtils.getDatesBetweenDateRange(start, end);
+        List<ServiceOverviewDetailDomain> details = new ArrayList<>();
+
+        for (ServiceCompanyEntity serviceCompanyEntity : serviceCompanyEntities) {
+            ServiceOverviewDetailDomain domain = new ServiceOverviewDetailDomain();
+            List<ItemOnDateDomain> itemList = new ArrayList<>();
+            for (Date date : dateList) {
+                ItemOnDateDomain item = new ItemOnDateDomain();
+                item.setDate(StringUtils.convertDateToStringFormatPattern(date, DateTimeUtils.DDMMYYYY));
+                Integer num = serviceTaskEntities.stream().filter(t -> {
+                    String createDate = StringUtils.convertDateToStringFormatPattern(t.getCreatedDate(), DateTimeUtils.YYYYMMDD);
+                    Date cd = DateTimeUtils.convertStringToDateOrNull(createDate, DateTimeUtils.YYYYMMDD);
+                    return t.getServiceId() == serviceCompanyEntity.getId() && cd.getTime() == date.getTime();
+                })
+                        .collect(Collectors.toList()).size();
+                item.setNumber(StringUtils.convertObjectToString(num));
+                itemList.add(item);
+            }
+            domain.setDetails(itemList);
+            domain.setService(serviceCompanyEntity.getServiceName());
+            details.add(domain);
+        }
+        overviewTaskDomain.setDetails(details);
+        return overviewTaskDomain;
+    }
 }

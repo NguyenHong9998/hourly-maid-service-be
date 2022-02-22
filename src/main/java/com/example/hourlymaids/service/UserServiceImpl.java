@@ -7,13 +7,11 @@ import com.example.hourlymaids.constant.*;
 import com.example.hourlymaids.constant.Error;
 import com.example.hourlymaids.domain.*;
 import com.example.hourlymaids.entity.*;
-import com.example.hourlymaids.repository.AccountRepository;
-import com.example.hourlymaids.repository.RoleRepository;
-import com.example.hourlymaids.repository.UserRepository;
-import com.example.hourlymaids.repository.UserVerifyRepository;
+import com.example.hourlymaids.repository.*;
 import com.example.hourlymaids.util.*;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -50,6 +48,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private SendMailUtils sendMailUtils;
     @Autowired
     private SendSmsUtils sendSmsUtils;
+
+    @Autowired
+    private FeedbackRepository feedbackRepository;
+    @Value("${cms.link}")
+    private String link;
 
     @Override
     public LoginResponse checkLogin(LoginUser loginUser) throws Exception {
@@ -545,6 +548,24 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         userEntity.setAccountId(accountEntity.getId());
         userEntity.setAvatar(avatar);
         userRepository.save(userEntity);
+        sendMailToClient(email, password, name, roleEntity.getName());
+    }
+
+    void sendMailToClient(String email, String password, String name, String role) {
+        SendMailDomain sendMailDomain = new SendMailDomain();
+        sendMailDomain.setToEmail(Arrays.asList(email));
+        sendMailDomain.setMessageContent("");
+        String subject = "CleanMe gửi bạn thông tin tài khoản đăng nhập";
+        String template = "send-mail-create-user";
+        sendMailDomain.setSubject(subject);
+        Map<String, Object> paramInfo = new HashMap<>();
+        paramInfo.put("email", email);
+        name = StringUtils.isEmpty(name) ? "bạn" : name;
+        paramInfo.put("username", name);
+        paramInfo.put("password", password);
+        paramInfo.put("linkCms", link);
+        paramInfo.put("role", role);
+        sendMailUtils.sendMailWithTemplate(sendMailDomain, template, paramInfo);
     }
 
     @Override
@@ -632,5 +653,105 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         AccountEntity accountEntity = accountRepository.findById(userEntity.getAccountId()).orElse(null);
         accountEntity.setEmail(email);
         accountRepository.save(accountEntity);
+    }
+
+    @Override
+    public List<UserInformDomain> getOveriewDetailOfFeedbackuser(String startDate, String endDate) {
+        List<UserEntity> userEntities = userRepository.findUserHasStatusNotBlock();
+        Date start = DateTimeUtils.convertStringToDateOrNull(startDate, DateTimeUtils.YYYYMMDD);
+        Date end = DateTimeUtils.convertStringToDateOrNull(endDate, DateTimeUtils.YYYYMMDD);
+        List<FeedbackEntity> feedbackEntities = feedbackRepository.findAll();
+        List<UserInformDomain> details = new ArrayList<>();
+        for (UserEntity userEntity : userEntities) {
+            UserInformDomain userInformDomain = new UserInformDomain();
+            Integer totalStar = feedbackEntities.stream().filter(t -> {
+                String createDate = StringUtils.convertDateToStringFormatPattern(t.getCreatedDate(), DateTimeUtils.YYYYMMDD);
+                Date cd = DateTimeUtils.convertStringToDateOrNull(createDate, DateTimeUtils.YYYYMMDD);
+                return cd.getTime() >= start.getTime() && cd.getTime() <= end.getTime() && t.getEmployeeId() == userEntity.getId();
+            }).map(t -> t.getRateNumber()).reduce(Integer::sum).get();
+            userInformDomain.setFullName(userEntity.getFullName());
+            userInformDomain.setNumStar(totalStar == 0 ? "0" : StringUtils.convertObjectToString(totalStar));
+            details.add(userInformDomain);
+        }
+        return details;
+    }
+
+    @Override
+    public UserOverviewDomain getOveriewOfFeedbackUser(String startDate, String endDate) {
+        UserOverviewDomain overviewUserDomain = new UserOverviewDomain();
+        Date start = DateTimeUtils.convertStringToDateOrNull(startDate, DateTimeUtils.YYYYMMDD);
+        Date end = DateTimeUtils.convertStringToDateOrNull(endDate, DateTimeUtils.YYYYMMDD);
+        List<FeedbackEntity> feedbackEntities = feedbackRepository.findAll();
+
+        Integer numOfUser = feedbackEntities.stream().map(t -> t.getUserId()).distinct().collect(Collectors.toList()).size();
+        overviewUserDomain.setNumOfUser(StringUtils.convertObjectToString(numOfUser));
+
+        Map.Entry<Long, Integer> maxUser = feedbackEntities.stream().map(t -> new UserStar(t.getEmployeeId(), t.getRateNumber()))
+                .collect(Collectors.groupingBy(t -> t.getUser(), Collectors.summingInt(t -> t.getStar())))
+                .entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).findFirst().orElse(null);
+        UserInformDomain maxUserInform = new UserInformDomain();
+
+        if (maxUser != null) {
+            UserEntity userEntity = userRepository.findById(maxUser.getKey()).orElse(null);
+            maxUserInform.setAvatar(userEntity.getAvatar());
+            maxUserInform.setFullName(userEntity.getFullName());
+            maxUserInform.setNumStar(StringUtils.convertObjectToString(maxUser.getValue()));
+        }
+
+        Map.Entry<Long, Integer> minUser = feedbackEntities.stream().map(t -> new UserStar(t.getEmployeeId(), t.getRateNumber()))
+                .collect(Collectors.groupingBy(t -> t.getUser(), Collectors.summingInt(t -> t.getStar())))
+                .entrySet().stream().sorted(Map.Entry.comparingByValue()).findFirst().orElse(null);
+        UserInformDomain minUserInform = new UserInformDomain();
+
+        if (maxUser != null) {
+            UserEntity userEntity = userRepository.findById(minUser.getKey()).orElse(null);
+            minUserInform.setAvatar(userEntity.getAvatar());
+            minUserInform.setFullName(userEntity.getFullName());
+            minUserInform.setNumStar(StringUtils.convertObjectToString(minUser.getValue()));
+        }
+        overviewUserDomain.setMaxUser(maxUserInform);
+        overviewUserDomain.setMinUser(minUserInform);
+
+        List<UserEntity> userEntities = userRepository.findUserHasStatusNotBlock();
+        List<UserInformDomain> details = new ArrayList<>();
+        for (UserEntity userEntity : userEntities) {
+            UserInformDomain userInformDomain = new UserInformDomain();
+            Integer totalStar = feedbackEntities.stream().filter(t -> {
+                String createDate = StringUtils.convertDateToStringFormatPattern(t.getCreatedDate(), DateTimeUtils.YYYYMMDD);
+                Date cd = DateTimeUtils.convertStringToDateOrNull(createDate, DateTimeUtils.YYYYMMDD);
+                return cd.getTime() >= start.getTime() && cd.getTime() <= end.getTime() && t.getEmployeeId() == userEntity.getId();
+            }).map(t -> t.getRateNumber()).reduce(Integer::sum).orElse(null);
+            userInformDomain.setFullName(userEntity.getFullName());
+            userInformDomain.setNumStar((totalStar == null || totalStar == 0) ? "0" : StringUtils.convertObjectToString(totalStar));
+            details.add(userInformDomain);
+        }
+        overviewUserDomain.setDetails(details);
+        return overviewUserDomain;
+    }
+}
+
+class UserStar {
+    private Long user;
+    private Integer star;
+
+    public UserStar(Long user, Integer star) {
+        this.user = user;
+        this.star = star;
+    }
+
+    public Long getUser() {
+        return user;
+    }
+
+    public void setUser(Long user) {
+        this.user = user;
+    }
+
+    public Integer getStar() {
+        return star;
+    }
+
+    public void setStar(Integer star) {
+        this.star = star;
     }
 }

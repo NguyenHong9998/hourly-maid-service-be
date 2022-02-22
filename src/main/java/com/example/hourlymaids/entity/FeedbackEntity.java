@@ -17,8 +17,6 @@ public class FeedbackEntity extends BaseEntity {
     private Integer rateNumber;
     @Column(name = "CONTENT")
     private String content;
-    @Column(name = "TYPE")
-    private Integer type;
     @Column(name = "USER_ID")
     private Long userId;
     @Column(name = "EMPLOYEE_ID")
@@ -46,14 +44,6 @@ public class FeedbackEntity extends BaseEntity {
 
     public void setContent(String content) {
         this.content = content;
-    }
-
-    public Integer getType() {
-        return type;
-    }
-
-    public void setType(Integer type) {
-        this.type = type;
     }
 
     public Long getUserId() {

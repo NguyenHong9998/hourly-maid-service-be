@@ -1,9 +1,7 @@
 package com.example.hourlymaids.service;
 
 import com.example.hourlymaids.config.ResponseDataAPI;
-import com.example.hourlymaids.domain.EmployeeServiceDomain;
-import com.example.hourlymaids.domain.GetListRequest;
-import com.example.hourlymaids.domain.ServiceDomain;
+import com.example.hourlymaids.domain.*;
 
 import java.util.List;
 
@@ -16,4 +14,7 @@ public interface ServiceCompanyService {
 
     void createService(ServiceDomain domain);
 
+    OverviewServiceDomain getServiceOverviewDetail(String startDate, String endDate);
+
+    List<ServiceOverviewDetailDomain> getOverviewDetailOfService(String startDate, String endDate);
 }

@@ -52,7 +52,6 @@ public class FeedbackServiceImpl implements FeedbackService {
             FeedbackDomain feedbackDomain = new FeedbackDomain();
             feedbackDomain.setContent(feedbackEntity.getContent());
             feedbackDomain.setUserId(feedbackEntity.getUserId().toString());
-            feedbackDomain.setType(feedbackEntity.getType().toString());
             feedbackDomain.setEmployeeId(feedbackEntity.getEmployeeId().toString());
             Long clientId = StringUtils.convertObjectToLongOrNull(objects[1]);
             ClientEntity userEntity = clientRepository.findById(clientId).orElse(null);
@@ -87,7 +86,6 @@ public class FeedbackServiceImpl implements FeedbackService {
         if (StringUtils.isEmpty(feedbackDomain.getContent())) {
             throw new CustomException(Error.CoNTENT_FEEDBACk_NULL.getMessage(), Error.CoNTENT_FEEDBACk_NULL.getCode(), HttpStatus.BAD_REQUEST);
         }
-        feedbackEntity.setType(StringUtils.convertStringToIntegerOrNull(feedbackDomain.getType()));
         feedbackEntity.setUserId(UserUtils.getCurrentUserId());
         feedbackEntity.setContent(feedbackDomain.getContent());
         feedbackEntity.setRateNumber(StringUtils.convertStringToIntegerOrNull(feedbackDomain.getVoteNum()));

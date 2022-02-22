@@ -1,6 +1,7 @@
 package com.example.hourlymaids.controller;
 
 import com.example.hourlymaids.config.ResponseDataAPI;
+import com.example.hourlymaids.domain.ChangeNotifyStatusDomain;
 import com.example.hourlymaids.domain.DiscountDomain;
 import com.example.hourlymaids.domain.GetListRequest;
 import com.example.hourlymaids.service.DiscountService;
@@ -39,6 +40,11 @@ public class DiscountController {
     @PostMapping("")
     public ResponseEntity<ResponseDataAPI> createDiscount(@RequestBody DiscountDomain domain) {
         service.createDiscount(domain);
+        return ResponseEntity.ok(ResponseDataAPI.builder().build());
+    }
+    @PutMapping("/change-status")
+    public ResponseEntity<Object> changeDiscountStatus(@RequestBody ChangeNotifyStatusDomain domain) {
+        service.changeStatusDiscount(domain);
         return ResponseEntity.ok(ResponseDataAPI.builder().build());
     }
 

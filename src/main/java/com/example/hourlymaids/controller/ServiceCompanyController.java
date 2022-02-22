@@ -62,4 +62,14 @@ public class ServiceCompanyController {
         return ResponseEntity.ok(ResponseDataAPI.builder().data(employeeServiceService.getListDiscountOfService(serviceId, columnSort, typeSort)).build());
     }
 
+    @GetMapping("/overview")
+    private ResponseEntity<Object> getOveriewOfTask(@RequestParam("start_date") String startDate, @RequestParam("end_date") String endDate) {
+        return ResponseEntity.ok(ResponseDataAPI.builder().data(service.getServiceOverviewDetail(startDate, endDate)).build());
+    }
+
+    @GetMapping("/overview/detail")
+     private ResponseEntity<Object> getOveriewDetailOfTask(@RequestParam("start_date") String startDate, @RequestParam("end_date") String endDate) {
+        return ResponseEntity.ok(ResponseDataAPI.builder().data(service.getOverviewDetailOfService(startDate, endDate)).build());
+    }
+
 }
