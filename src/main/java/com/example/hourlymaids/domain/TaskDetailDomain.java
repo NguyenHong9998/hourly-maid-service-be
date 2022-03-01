@@ -3,6 +3,8 @@ package com.example.hourlymaids.domain;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import java.util.List;
+
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 
 public class TaskDetailDomain {
@@ -14,6 +16,7 @@ public class TaskDetailDomain {
     private String numOfEmployee;
     private String startTime;
     private String endTime;
+    private List<TaskProgressDomain> progress;
 
     public ClientInformDomain getClientInform() {
         return clientInform;
@@ -77,5 +80,13 @@ public class TaskDetailDomain {
 
     public void setEndTime(String endTime) {
         this.endTime = endTime;
+    }
+
+    public List<TaskProgressDomain> getProgress() {
+        return progress;
+    }
+
+    public void setProgress(List<TaskProgressDomain> progress) {
+        this.progress = progress;
     }
 }

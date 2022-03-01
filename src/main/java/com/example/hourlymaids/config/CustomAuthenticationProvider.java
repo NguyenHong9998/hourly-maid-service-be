@@ -10,7 +10,6 @@ import com.example.hourlymaids.domain.LoginUser;
 import com.example.hourlymaids.domain.RoleDomain;
 import com.example.hourlymaids.domain.UserDomain;
 import com.example.hourlymaids.entity.*;
-import com.example.hourlymaids.repository.AccountRepository;
 import com.example.hourlymaids.repository.RoleRepository;
 import com.example.hourlymaids.repository.UserRepository;
 
@@ -39,8 +38,6 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     @Autowired
     private RoleRepository roleRepository;
 
-    @Autowired
-    private AccountRepository accountRepository;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -48,14 +45,13 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             LoginUser username = authentication.getPrincipal() != null ? (LoginUser) authentication.getPrincipal() : null;
             String password = authentication.getCredentials().toString();
             UserDomain userDTO = new UserDomain();
-            AccountEntity accountEntity = accountRepository.findByEmail(username.getEmail());
-            if (accountEntity != null) {
-                UserEntity userEntity = userRepository.findByAccountId(accountEntity.getId());
+            UserEntity userEntity = userRepository.findByEmail(username.getEmail());
+            if (userEntity != null) {
                 userDTO.setUserId(userEntity.getId());
-                userDTO.setEmail(accountEntity.getEmail());
-                RoleEntity roleEntity = roleRepository.findById(accountEntity.getRoleId()).orElse(null);
+                userDTO.setEmail(userEntity.getEmail());
+                RoleEntity roleEntity = roleRepository.findById(userEntity.getRoleId()).orElse(null);
                 userDTO.setRoles(Arrays.asList(new RoleDomain(roleEntity.getId(), roleEntity.getName())));
-                userDTO.setPassword(accountEntity.getPassword());
+                userDTO.setPassword(userEntity.getPassword());
                 // Check login id and password
                 if (bCryptEncoder.matches(password, userDTO.getPassword())) {
                     Set<SimpleGrantedAuthority> list_authorities = new HashSet<>();

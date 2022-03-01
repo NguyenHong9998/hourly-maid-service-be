@@ -3,6 +3,7 @@ package com.example.hourlymaids.constant;
 public enum UserRole {
     MANAGER(1, "Quản lý", "MANAGER"),
     EMPLOYEE(2, "Nhân viên", "EMPLOYEE"),
+    USER(3, "Khách hàng", "USER"),
     ALL(3, "Tất cả", "ALL");
 
     private String value;

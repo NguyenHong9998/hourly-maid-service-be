@@ -6,21 +6,15 @@ import com.example.hourlymaids.constant.Error;
 import com.example.hourlymaids.constant.FeedbackType;
 import com.example.hourlymaids.domain.FeedbackDetailDomain;
 import com.example.hourlymaids.domain.FeedbackDomain;
-import com.example.hourlymaids.domain.GetListRequest;
 import com.example.hourlymaids.domain.OverviewFeedbackDomain;
-import com.example.hourlymaids.entity.ClientEntity;
 import com.example.hourlymaids.entity.FeedbackEntity;
 import com.example.hourlymaids.entity.UserEntity;
-import com.example.hourlymaids.repository.ClientRepository;
 import com.example.hourlymaids.repository.FeedbackRepository;
 import com.example.hourlymaids.repository.UserRepository;
+import com.example.hourlymaids.util.DateTimeUtils;
 import com.example.hourlymaids.util.StringUtils;
 import com.example.hourlymaids.util.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -38,9 +32,6 @@ public class FeedbackServiceImpl implements FeedbackService {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private ClientRepository clientRepository;
-
     @Override
     public ResponseDataAPI getListFeedback(String userId) {
         Long user = StringUtils.convertStringToLongOrNull(userId);
@@ -54,10 +45,12 @@ public class FeedbackServiceImpl implements FeedbackService {
             feedbackDomain.setUserId(feedbackEntity.getUserId().toString());
             feedbackDomain.setEmployeeId(feedbackEntity.getEmployeeId().toString());
             Long clientId = StringUtils.convertObjectToLongOrNull(objects[1]);
-            ClientEntity userEntity = clientRepository.findById(clientId).orElse(null);
 
+            UserEntity userEntity = userRepository.findById(clientId).orElse(null);
+            feedbackDomain.setCreateDate(DateTimeUtils.convertDateToStringOrEmpty(feedbackEntity.getCreatedDate(), DateTimeUtils.YYYYMMDDhhmmss));
             feedbackDomain.setUsername(userEntity.getFullName());
             feedbackDomain.setAvatarUser(userEntity.getAvatar());
+            feedbackDomain.setVoteNum(StringUtils.convertObjectToString(feedbackEntity.getRateNumber()));
             return feedbackDomain;
         }).collect(Collectors.toList());
 

@@ -5,6 +5,7 @@ import com.example.hourlymaids.constant.Error;
 import com.example.hourlymaids.domain.EmployeeServiceDomain;
 import com.example.hourlymaids.domain.GetListDiscountOfService;
 import com.example.hourlymaids.domain.GetListRequest;
+import com.example.hourlymaids.domain.UpdateEmployeeExperienceDomain;
 import com.example.hourlymaids.entity.DiscountEntity;
 import com.example.hourlymaids.entity.EmployeeServiceEntity;
 import com.example.hourlymaids.entity.ServiceCompanyEntity;
@@ -22,10 +23,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,18 +52,19 @@ public class EmployeeServiceServiceImpl implements EmployeeServiceService {
         if (userEntity == null) {
             throw new CustomException(Error.PARAMETER_INVALID.getMessage(), Error.PARAMETER_INVALID.getCode(), HttpStatus.BAD_REQUEST);
         }
-
         List<EmployeeServiceEntity> entities = employeeServiceRepository.findByUserId(user);
+        Map<Long, EmployeeServiceEntity> employeeServiceMap = entities.stream().collect(Collectors.toMap(t -> t.getServiceId(), t -> t));
+        List<ServiceCompanyEntity> services = serviceCompanyRepository.findAll();
 
-        List<EmployeeServiceDomain> domains = entities.stream().map(entity -> {
+        List<EmployeeServiceDomain> domains = services.stream().map(entity -> {
             EmployeeServiceDomain domain = new EmployeeServiceDomain();
-            ServiceCompanyEntity serviceCompanyEntity = serviceCompanyRepository.findById(entity.getServiceId()).orElse(null);
-            domain.setServiceId(serviceCompanyEntity.getId().toString());
-            domain.setServiceName(serviceCompanyEntity.getServiceName());
+            EmployeeServiceEntity employeeServiceEntity = employeeServiceMap.get(entity.getId());
+            domain.setServiceId(entity.getId().toString());
+            domain.setServiceName(entity.getServiceName());
             domain.setUserId(userId);
-            domain.setUserName(userEntity.getFullName());
-            domain.setUserAvatar(userEntity.getAvatar());
-            domain.setLevel(entity.getLevel().toString());
+            domain.setBanner(entity.getBanner());
+            domain.setUserAvatar(entity.getBanner());
+            domain.setLevel(employeeServiceEntity == null ? "0" : employeeServiceEntity.getLevel().toString());
             return domain;
         }).collect(Collectors.toList());
         return domains;
@@ -78,7 +82,7 @@ public class EmployeeServiceServiceImpl implements EmployeeServiceService {
             throw new CustomException(Error.PARAMETER_INVALID.getMessage(), Error.PARAMETER_INVALID.getCode(), HttpStatus.BAD_REQUEST);
         }
         GetListRequest request = new GetListRequest();
-        request.setOffset(1);
+        request.setOffset(0);
         request.setLimit(1000);
 
         List<String> columnSorts = Arrays.asList(ColumnSortEmployeeService.NAME.getName(), ColumnSortEmployeeService.LEVEL.getName());
@@ -126,9 +130,10 @@ public class EmployeeServiceServiceImpl implements EmployeeServiceService {
     }
 
 
+    @Transactional
     @Override
-    public void updateListServiceOfEmployee(String employeeId, List<EmployeeServiceDomain> domains) {
-        Long user = StringUtils.convertStringToLongOrNull(employeeId);
+    public void updateListServiceOfEmployee(UpdateEmployeeExperienceDomain domains) {
+        Long user = StringUtils.convertStringToLongOrNull(domains.getEmployeeId());
         if (user == null) {
             throw new CustomException(Error.PARAMETER_INVALID.getMessage(), Error.PARAMETER_INVALID.getCode(), HttpStatus.BAD_REQUEST);
         }
@@ -139,7 +144,7 @@ public class EmployeeServiceServiceImpl implements EmployeeServiceService {
         employeeServiceRepository.deleteByUserId(user);
         List<EmployeeServiceEntity> entities = new ArrayList<>();
 
-        for (EmployeeServiceDomain domain : domains) {
+        for (EmployeeServiceDomain domain : domains.getEmployeeService()) {
             Long serviceId = StringUtils.convertStringToLongOrNull(domain.getServiceId());
             if (serviceId == null) {
                 throw new CustomException(Error.PARAMETER_INVALID.getMessage(), Error.PARAMETER_INVALID.getCode(), HttpStatus.BAD_REQUEST);
@@ -147,6 +152,9 @@ public class EmployeeServiceServiceImpl implements EmployeeServiceService {
             ServiceCompanyEntity serviceCompanyEntity = serviceCompanyRepository.getById(serviceId);
             if (serviceCompanyEntity == null) {
                 throw new CustomException(Error.PARAMETER_INVALID.getMessage(), Error.PARAMETER_INVALID.getCode(), HttpStatus.BAD_REQUEST);
+            }
+            if (domain.getLevel() == null || StringUtils.convertStringToIntegerOrNull(domain.getLevel()) == 0) {
+                continue;
             }
             EmployeeServiceEntity entity = new EmployeeServiceEntity();
             entity.setServiceId(serviceCompanyEntity.getId());

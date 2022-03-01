@@ -21,4 +21,6 @@ public interface EmployeeTaskRepository extends JpaRepository<EmployeeTaskEntity
     @Modifying
     @Query(value = "delete from EmployeeTaskEntity et where et.taskId = ?1")
     void deleteAllByTaskId(Long taskId);
+
+    List<EmployeeTaskEntity> findByEmployeeId(Long employeeId);
 }

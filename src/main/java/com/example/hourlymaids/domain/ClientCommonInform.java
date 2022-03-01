@@ -5,23 +5,30 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 
-public class UserPersonalInformDomain {
-    private String name;
+public class ClientCommonInform {
+    private String avatar;
+    private String dateOfBirth;
     private String gender;
+    private String name;
     private String email;
     private String phone;
-    private String idCard;
-    private String address;
-    private String dateOfBirth;
     private boolean isVerifyEmail;
     private boolean isVerifyPhone;
 
-    public String getName() {
-        return name;
+    public String getAvatar() {
+        return avatar;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    public String getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(String dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 
     public String getGender() {
@@ -30,6 +37,14 @@ public class UserPersonalInformDomain {
 
     public void setGender(String gender) {
         this.gender = gender;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getEmail() {
@@ -46,30 +61,6 @@ public class UserPersonalInformDomain {
 
     public void setPhone(String phone) {
         this.phone = phone;
-    }
-
-    public String getIdCard() {
-        return idCard;
-    }
-
-    public void setIdCard(String idCard) {
-        this.idCard = idCard;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getDateOfBirth() {
-        return dateOfBirth;
-    }
-
-    public void setDateOfBirth(String dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
     }
 
     public boolean isVerifyEmail() {

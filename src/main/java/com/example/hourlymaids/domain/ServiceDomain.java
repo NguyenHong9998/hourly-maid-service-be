@@ -3,6 +3,8 @@ package com.example.hourlymaids.domain;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import java.util.List;
+
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 
 public class ServiceDomain {
@@ -10,11 +12,13 @@ public class ServiceDomain {
     private String name;
     private String note;
     private String banner;
+    private String status;
     private String price;
     private String createDate;
     private String numTask;
     private String advantage;
     private String introduces;
+    private List<DiscountDomain> discounts;
 
     public String getId() {
         return id;
@@ -86,5 +90,21 @@ public class ServiceDomain {
 
     public void setIntroduces(String introduces) {
         this.introduces = introduces;
+    }
+
+    public List<DiscountDomain> getDiscounts() {
+        return discounts;
+    }
+
+    public void setDiscounts(List<DiscountDomain> discounts) {
+        this.discounts = discounts;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

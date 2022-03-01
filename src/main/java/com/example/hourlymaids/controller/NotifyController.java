@@ -41,6 +41,22 @@ public class NotifyController {
 
     }
 
+    @GetMapping("/user")
+    public ResponseEntity<Object> getListNotifyForUser(@RequestParam(value = "offset") @ApiParam(value = "offset", example = "0") Integer offset,
+                                                @RequestParam(value = "limit") @ApiParam(value = "limit", example = "10") Integer limit,
+                                                @RequestParam(value = "value_search") @ApiParam(value = "valueSearch", example = "") String valueSearch) {
+        Integer of = (offset == null || offset <= 1) ? 0 : offset - 1;
+        Integer lim = (limit == null || limit < 1) ? 10 : limit;
+        GetListRequest getListRequest = new GetListRequest();
+        getListRequest.setLimit(lim);
+        getListRequest.setOffset(of);
+        getListRequest.setValueSearch(valueSearch);
+        ResponseDataAPI responseDataAPI = notifyService.getListNotifyForUser(getListRequest);
+        return ResponseEntity.ok(responseDataAPI);
+
+    }
+
+
     @PutMapping("/change-status")
     public ResponseEntity<Object> changeNotifyStatus(@RequestBody ChangeNotifyStatusDomain domain) {
         notifyService.changeStatusNotify(domain);

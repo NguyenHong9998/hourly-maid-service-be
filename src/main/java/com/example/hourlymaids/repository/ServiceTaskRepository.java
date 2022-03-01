@@ -15,4 +15,9 @@ public interface ServiceTaskRepository extends JpaRepository<ServiceTaskEntity, 
 //    List<Object[]> getServiceTaskEntitiesByTaskId(Long taskId);
 
     List<ServiceTaskEntity> findByTaskId(Long taskId);
+
+    List<ServiceTaskEntity> findByServiceId(Long serviceId);
+
+    @Query("select st from ServiceTaskEntity st left join EmployeeTaskEntity et on st.taskId = et.taskId where et.employeeId = ?1")
+    List<ServiceTaskEntity> findAllByEmployeeId(Long currentUserId);
 }

@@ -13,8 +13,10 @@ import java.util.List;
 public interface EmployeeServiceRepository extends JpaRepository<EmployeeServiceEntity, Long> {
     List<EmployeeServiceEntity> findByUserId(Long userId);
 
-    @Query("select u, es.level from EmployeeServiceEntity es inner join UserEntity u on es.userId = u.id where es.serviceId = ?1")
+    @Query("select u, es.level from EmployeeServiceEntity es left join UserEntity u on es.userId = u.id where es.serviceId = ?1")
     Page<Object[]> findByServiceId(Long serviceId, Pageable pageable);
+
+    List<EmployeeServiceEntity> findByServiceId(Long serviceId);
 
     void deleteByUserId(Long userId);
 }

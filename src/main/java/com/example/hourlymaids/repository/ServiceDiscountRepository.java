@@ -25,4 +25,8 @@ public interface ServiceDiscountRepository extends JpaRepository<ServiceDiscount
     List<ServiceDiscountEntity> findByServiceId(Long serviceId);
 
 
+    @Query(value = "select d, sd.salePercentage from ServiceDiscountEntity  sd left join DiscountEntity d on sd.discountId = d.id where sd.serviceId = ?1 and d.isPublic = 1 ")
+    List<Object[]> findDiscountByServiceId(Long serviceId);
+
+
 }

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -19,4 +20,7 @@ public interface NotifyRepository extends JpaRepository<NotifyEntity, Long> {
 
     @Query("select n from NotifyEntity n where n.id in ?1")
     List<NotifyEntity> findAllByIds(List<Long> ids);
+
+    @Query("select n from NotifyEntity n where upper(n.title) like %?2% and n.status = 1 and n.topic in ?1")
+    Page<NotifyEntity> findAllNotifyForUser(List<Integer> topic, String valueSearch, Pageable pageable);
 }

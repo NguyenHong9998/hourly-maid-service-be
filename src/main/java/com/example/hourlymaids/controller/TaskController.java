@@ -43,6 +43,52 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getListTask(getListRequest));
     }
 
+    @GetMapping("/user")
+    public ResponseEntity<Object> getListTaskOfUser(@RequestParam(value = "offset", required = false) Integer offset,
+                                                    @RequestParam(value = "limit", required = false) Integer limit,
+                                                    @RequestParam(value = "value_search", required = false) String valueSearch,
+                                                    @RequestParam(value = "type_sort", required = false) String typeSort,
+                                                    @RequestParam(value = "column_sort", required = false) String columnSort,
+                                                    @RequestParam(value = "status", required = false) String status) {
+        Integer of = (offset == null || offset <= 1) ? 0 : offset - 1;
+        Integer lim = (limit == null || limit < 1) ? 10 : limit;
+        GetListRequest getListRequest = new GetListRequest();
+        getListRequest.setLimit(lim);
+        getListRequest.setOffset(of);
+        getListRequest.setColumnSort(columnSort);
+        getListRequest.setTypeSort(typeSort);
+        getListRequest.setValueSearch(valueSearch);
+        getListRequest.setStatus(status);
+        return ResponseEntity.ok(taskService.getListTaskOfUser(getListRequest));
+    }
+
+
+    @GetMapping("/employee")
+    public ResponseEntity<Object> getListTaskOfEmployee(@RequestParam(value = "offset", required = false) Integer offset,
+                                                        @RequestParam(value = "limit", required = false) Integer limit,
+                                                        @RequestParam(value = "value_search", required = false) String valueSearch,
+                                                        @RequestParam(value = "type_sort", required = false) String typeSort,
+                                                        @RequestParam(value = "column_sort", required = false) String columnSort,
+                                                        @RequestParam(value = "status", required = false) String status,
+                                                        @RequestParam(value = "date", required = false) String date) {
+        Integer of = (offset == null || offset <= 1) ? 0 : offset - 1;
+        Integer lim = (limit == null || limit < 1) ? 10 : limit;
+        GetListRequest getListRequest = new GetListRequest();
+        getListRequest.setLimit(lim);
+        getListRequest.setOffset(of);
+        getListRequest.setColumnSort(columnSort);
+        getListRequest.setTypeSort(typeSort);
+        getListRequest.setValueSearch(valueSearch);
+        getListRequest.setStatus(status);
+        return ResponseEntity.ok(taskService.getListTaskOfEmployee(getListRequest, date));
+    }
+
+    @GetMapping("/calendar")
+    public ResponseEntity<Object> getListWorkDateOfEmployee() {
+        return ResponseEntity.ok(ResponseDataAPI.builder().data(taskService.getListWorkDateOfEmployee()).build());
+
+    }
+
     @GetMapping("/{task_id}")
     private ResponseEntity<Object> getTaskDetail(@PathVariable("task_id") String taskId) {
         return ResponseEntity.ok(ResponseDataAPI.builder().data(taskService.getTaskDetail(taskId)).build());
@@ -84,7 +130,17 @@ public class TaskController {
     }
 
     @GetMapping("/overview/detail")
-     private ResponseEntity<Object> getOveriewDetailOfTask(@RequestParam("start_date") String startDate, @RequestParam("end_date") String endDate) {
+    private ResponseEntity<Object> getOveriewDetailOfTask(@RequestParam("start_date") String startDate, @RequestParam("end_date") String endDate) {
         return ResponseEntity.ok(ResponseDataAPI.builder().data(taskService.getOveriewDetailOfTask(startDate, endDate)).build());
+    }
+
+     @GetMapping("/overview/employee")
+    private ResponseEntity<Object> getOveriewOfTaskOfEmployee(@RequestParam("start_date") String startDate, @RequestParam("end_date") String endDate) {
+        return ResponseEntity.ok(ResponseDataAPI.builder().data(taskService.getTaskOverviewDetailForEmployee(startDate, endDate)).build());
+    }
+
+    @GetMapping("/overview/employee/detail")
+    private ResponseEntity<Object> getOveriewDetailOfTaskOfEmployee(@RequestParam("start_date") String startDate, @RequestParam("end_date") String endDate) {
+        return ResponseEntity.ok(ResponseDataAPI.builder().data(taskService.getOveriewDetailOfTaskForEmployee(startDate, endDate)).build());
     }
 }

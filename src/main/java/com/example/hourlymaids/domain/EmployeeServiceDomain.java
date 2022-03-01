@@ -12,6 +12,7 @@ public class EmployeeServiceDomain {
     private String serviceName;
     private String userAvatar;
     private String level;
+    private String banner;
 
     public String getUserId() {
         return userId;
@@ -59,5 +60,13 @@ public class EmployeeServiceDomain {
 
     public void setLevel(String level) {
         this.level = level;
+    }
+
+    public String getBanner() {
+        return banner;
+    }
+
+    public void setBanner(String banner) {
+        this.banner = banner;
     }
 }

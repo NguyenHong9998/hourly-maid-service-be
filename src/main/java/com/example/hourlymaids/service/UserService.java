@@ -40,7 +40,7 @@ public interface UserService {
 
     void createUser(EmployeeListDomain domain);
 
-    void changeStatusEmployee(ChangeStatusEmployeeDomain domain);
+    void changeStatusEmployee(ChangeStatusDomain domain);
 
     CommonInformDomain getUserCommonInforById(String id);
 
@@ -53,4 +53,14 @@ public interface UserService {
     List<UserInformDomain> getOveriewDetailOfFeedbackuser(String startDate, String endDate);
 
     UserOverviewDomain getOveriewOfFeedbackUser(String startDate, String endDate);
+
+    OverviewOfEmployeeDomain getOverviewOfEmployee(String startDate, String endDate);
+
+    List<ItemOnDateDomain> getOverViewDetailOfEmployee(String startDate, String endDate);
+
+    void updateClientCommonInform(ClientCommonInform domain);
+
+    ClientCommonInform getClientInform();
+
+
 }

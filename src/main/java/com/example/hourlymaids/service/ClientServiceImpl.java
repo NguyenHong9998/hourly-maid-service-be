@@ -1,18 +1,18 @@
 package com.example.hourlymaids.service;
 
-import com.example.hourlymaids.entity.ClientEntity;
-import com.example.hourlymaids.repository.ClientRepository;
+import com.example.hourlymaids.entity.UserEntity;
+import com.example.hourlymaids.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ClientServiceImpl implements ClientService {
     @Autowired
-    private ClientRepository clientRepository;
+    private UserRepository userRepository;
 
     @Override
     public boolean checkExistClient(String email, String phone) {
-        ClientEntity clientEntity = clientRepository.findByEmail(email);
+        UserEntity clientEntity = userRepository.findByEmail(email);
         if(clientEntity != null){
             return true;
         }

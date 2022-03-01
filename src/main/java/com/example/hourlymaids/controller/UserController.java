@@ -70,6 +70,12 @@ public class UserController {
         return ResponseEntity.ok(ResponseDataAPI.builder().build());
     }
 
+    @PutMapping("/client/common-inform")
+    public ResponseEntity<Object> updateClientCommonInform(@RequestBody ClientCommonInform domain) {
+        userService.updateClientCommonInform(domain);
+        return ResponseEntity.ok(ResponseDataAPI.builder().build());
+    }
+
     @GetMapping("/personal-inform")
     public ResponseEntity<Object> getUserPersonalInform() {
         return ResponseEntity.ok(ResponseDataAPI.builder().data(userService.getUserPersonalInform()).build());
@@ -114,7 +120,7 @@ public class UserController {
     }
 
     @PutMapping("/change-status")
-    public ResponseEntity<Object> changeStatusEmployee(@RequestBody ChangeStatusEmployeeDomain domain) {
+    public ResponseEntity<Object> changeStatusEmployee(@RequestBody ChangeStatusDomain domain) {
         userService.changeStatusEmployee(domain);
         return ResponseEntity.ok(ResponseDataAPI.builder().build());
     }
@@ -146,16 +152,37 @@ public class UserController {
 
     @GetMapping("/experience/{user_id}")
     public ResponseEntity<Object> getListExperience(@PathVariable("user_id") String userId) {
-        return ResponseEntity.ok(employeeServiceService.getServiceListOfEmployee(userId));
+        return ResponseEntity.ok(ResponseDataAPI.builder().data(employeeServiceService.getServiceListOfEmployee(userId)).build());
     }
 
-      @GetMapping("/overview")
+    @GetMapping("/overview")
     private ResponseEntity<Object> getOveriewOfFeedbackUser(@RequestParam("start_date") String startDate, @RequestParam("end_date") String endDate) {
         return ResponseEntity.ok(ResponseDataAPI.builder().data(userService.getOveriewOfFeedbackUser(startDate, endDate)).build());
     }
 
     @GetMapping("/overview/detail")
-     private ResponseEntity<Object> getOveriewDetailOfFeedbackuser(@RequestParam("start_date") String startDate, @RequestParam("end_date") String endDate) {
+    private ResponseEntity<Object> getOveriewDetailOfFeedbackuser(@RequestParam("start_date") String startDate, @RequestParam("end_date") String endDate) {
         return ResponseEntity.ok(ResponseDataAPI.builder().data(userService.getOveriewDetailOfFeedbackuser(startDate, endDate)).build());
+    }
+
+    @GetMapping("/overview/employee")
+    private ResponseEntity<Object> getOveriewOfFeedbackUserForEmployee(@RequestParam("start_date") String startDate, @RequestParam("end_date") String endDate) {
+        return ResponseEntity.ok(ResponseDataAPI.builder().data(userService.getOverviewOfEmployee(startDate, endDate)).build());
+    }
+
+    @GetMapping("/overview/employee/detail")
+    private ResponseEntity<Object> getOveriewDetailOfFeedbackuserForEmployee(@RequestParam("start_date") String startDate, @RequestParam("end_date") String endDate) {
+        return ResponseEntity.ok(ResponseDataAPI.builder().data(userService.getOverViewDetailOfEmployee(startDate, endDate)).build());
+    }
+
+    @GetMapping("/client/inform")
+    private ResponseEntity<Object> getClientInform() {
+        return ResponseEntity.ok(ResponseDataAPI.builder().data(userService.getClientInform()).build());
+    }
+
+    @PostMapping("/employee/experience")
+    private ResponseEntity<Object> updateemployeeEmperience(@RequestBody UpdateEmployeeExperienceDomain domain) {
+        employeeServiceService.updateListServiceOfEmployee(domain);
+        return ResponseEntity.ok(ResponseDataAPI.builder().build());
     }
 }

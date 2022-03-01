@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 public class ServiceParamDomain {
     private String id;
     private String name;
+    private String banner;
     private String percentage;
 
     public String getId() {
@@ -31,5 +32,13 @@ public class ServiceParamDomain {
 
     public void setPercentage(String percentage) {
         this.percentage = percentage;
+    }
+
+    public String getBanner() {
+        return banner;
+    }
+
+    public void setBanner(String banner) {
+        this.banner = banner;
     }
 }

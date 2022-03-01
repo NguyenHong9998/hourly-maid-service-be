@@ -227,6 +227,7 @@ public class DiscountServiceImpl implements DiscountService {
             serviceParamDomain.setName(serviceCompanyEntity.getServiceName());
             serviceParamDomain.setId(serviceCompanyEntity.getId().toString());
             serviceParamDomain.setPercentage(percentage.toString());
+            serviceParamDomain.setBanner(serviceCompanyEntity.getBanner());
             return serviceParamDomain;
         }).collect(Collectors.toList());
         domain.setServiceList(discountEntities);

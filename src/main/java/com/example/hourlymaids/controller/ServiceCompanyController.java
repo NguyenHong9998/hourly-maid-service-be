@@ -1,6 +1,7 @@
 package com.example.hourlymaids.controller;
 
 import com.example.hourlymaids.config.ResponseDataAPI;
+import com.example.hourlymaids.domain.ChangeStatusDomain;
 import com.example.hourlymaids.domain.GetListRequest;
 import com.example.hourlymaids.domain.ServiceDomain;
 import com.example.hourlymaids.service.EmployeeServiceService;
@@ -68,8 +69,25 @@ public class ServiceCompanyController {
     }
 
     @GetMapping("/overview/detail")
-     private ResponseEntity<Object> getOveriewDetailOfTask(@RequestParam("start_date") String startDate, @RequestParam("end_date") String endDate) {
+    private ResponseEntity<Object> getOveriewDetailOfTask(@RequestParam("start_date") String startDate, @RequestParam("end_date") String endDate) {
         return ResponseEntity.ok(ResponseDataAPI.builder().data(service.getOverviewDetailOfService(startDate, endDate)).build());
+    }
+
+
+    @GetMapping("/overview/employee")
+    private ResponseEntity<Object> getOveriewOfTaskForEmployee(@RequestParam("start_date") String startDate, @RequestParam("end_date") String endDate) {
+        return ResponseEntity.ok(ResponseDataAPI.builder().data(service.getServiceOverviewDetailForEmployee(startDate, endDate)).build());
+    }
+
+    @GetMapping("/overview/employee/detail")
+    private ResponseEntity<Object> getOveriewDetailOfTaskForEmployee(@RequestParam("start_date") String startDate, @RequestParam("end_date") String endDate) {
+        return ResponseEntity.ok(ResponseDataAPI.builder().data(service.getOverviewDetailOfServiceForEmployee(startDate, endDate)).build());
+    }
+
+    @PutMapping("/change-status")
+    public ResponseEntity<Object> changeStatusService(@RequestBody ChangeStatusDomain domain) {
+        service.changeStatusService(domain);
+        return ResponseEntity.ok(ResponseDataAPI.builder().build());
     }
 
 }

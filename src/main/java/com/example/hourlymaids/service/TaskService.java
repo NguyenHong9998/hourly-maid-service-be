@@ -12,6 +12,9 @@ public interface TaskService {
 
     ResponseDataAPI getListTask(GetListRequest request);
 
+    ResponseDataAPI getListTaskOfUser(GetListRequest request);
+
+
     TaskDetailDomain getTaskDetail(String taskId);
 
     List<UserInformDomain> getListUserAvailableWithTaskTime(String startTime, String endTime);
@@ -27,4 +30,12 @@ public interface TaskService {
     OverviewTaskDomain getTaskOverviewDetail(String statDate, String endDate);
 
     List<ItemOnDateDomain> getOveriewDetailOfTask(String statDate, String endDate);
+
+    OverviewTaskDomain getTaskOverviewDetailForEmployee(String statDate, String endDate);
+
+    List<ItemOnDateDomain> getOveriewDetailOfTaskForEmployee(String statDate, String endDate);
+
+    ResponseDataAPI getListTaskOfEmployee(GetListRequest getListRequest, String date);
+
+    List<String> getListWorkDateOfEmployee();
 }

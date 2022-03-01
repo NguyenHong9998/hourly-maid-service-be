@@ -16,6 +16,7 @@ public class DiscountDomain {
     private String banner;
     private String isPublic;
     private String numberService;
+    private String salePercentage;
 
     public String getId() {
         return id;
@@ -95,5 +96,13 @@ public class DiscountDomain {
 
     public void setNumberService(String numberService) {
         this.numberService = numberService;
+    }
+
+    public String getSalePercentage() {
+        return salePercentage;
+    }
+
+    public void setSalePercentage(String salePercentage) {
+        this.salePercentage = salePercentage;
     }
 }

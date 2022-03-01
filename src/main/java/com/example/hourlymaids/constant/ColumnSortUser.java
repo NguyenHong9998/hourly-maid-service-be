@@ -2,7 +2,7 @@ package com.example.hourlymaids.constant;
 
 public enum ColumnSortUser {
     NAME("fullName", "NAME"),
-    EMAIL("a.email", "EMAIL"),
+    EMAIL("email", "EMAIL"),
     STATUS("status", "STATUS"),
     ROLE("r.name", "role"),
     CREATED_DATE("createdDate", "CREATED_DATE");

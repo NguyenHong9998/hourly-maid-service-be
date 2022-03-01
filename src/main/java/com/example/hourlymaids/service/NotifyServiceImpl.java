@@ -19,6 +19,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import javax.jms.Topic;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -116,6 +118,38 @@ public class NotifyServiceImpl implements NotifyService {
         }
         return pageable;
     }
+
+    @Override
+    public ResponseDataAPI getListNotifyForUser(GetListRequest request) {
+        Pageable pageable = PageRequest.of(request.getOffset(), request.getLimit(), Sort.by(ColumnSortNotify.PUBLISH_DATE.getValue()).descending());
+        String valueSearch = StringUtils.replaceSpecialCharacter(request.getValueSearch()).toUpperCase();
+        List<Integer> topics = new ArrayList<>();
+        topics.add(NotifyTopic.ALL.getCode());
+        if(UserUtils.getCurrentUser().getRoles().get(0).getName() == UserRole.USER.getName()){
+            topics.add(NotifyTopic.TO_USER.getCode());
+        }else {
+            topics.add(NotifyTopic.TO_EMPLOYEE.getCode());
+        }
+        Page<NotifyEntity> entities = notifyRepository.findAllNotifyForUser(topics, valueSearch, pageable);
+
+        List<Object> result = entities.stream().map(notify -> {
+            NotifyDomain notifyDomain = new NotifyDomain();
+            notifyDomain.setTitle(notify.getTitle());
+            notifyDomain.setContent(notify.getContent());
+            notifyDomain.setStatus(NotifyStatus.getStatusByCode(notify.getStatus()).getValue());
+            notifyDomain.setType(NotifyTopic.getTopicByCode(notify.getTopic()).getValue());
+            notifyDomain.setId(StringUtils.convertObjectToString(notify.getId()));
+            notifyDomain.setPublishDate(StringUtils.convertDateToStringFormatPattern(notify.getPublishDate(), DateTimeUtils.YYYYMMDDhhmmss));
+            return notifyDomain;
+        }).collect(Collectors.toList());
+
+        ResponseDataAPI responseDataAPI = new ResponseDataAPI();
+        responseDataAPI.setData(result);
+        responseDataAPI.setTotalRows(entities.getTotalElements());
+
+        return responseDataAPI;
+    }
+
 
     @Override
     public void changeStatusNotify(ChangeNotifyStatusDomain domain) {

@@ -11,6 +11,8 @@ public interface NotifyService {
 
     ResponseDataAPI getListNotify(GetListRequest request);
 
+    ResponseDataAPI getListNotifyForUser(GetListRequest request);
+
     void changeStatusNotify(ChangeNotifyStatusDomain domain);
 
     NotifyDomain getDetailNotify(String id);
@@ -18,4 +20,5 @@ public interface NotifyService {
     void editNotify(NotifyDomain domain);
 
     void deleteNotify(DeleteDomain deleteDomain);
+
 }

@@ -12,6 +12,7 @@ public class FeedbackDomain {
     private String voteNum;
     private String type;
     private String employeeId;
+    private String createDate;
 
     public String getContent() {
         return content;
@@ -67,5 +68,13 @@ public class FeedbackDomain {
 
     public void setEmployeeId(String employeeId) {
         this.employeeId = employeeId;
+    }
+
+    public String getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(String createDate) {
+        this.createDate = createDate;
     }
 }

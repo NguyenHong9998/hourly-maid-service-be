@@ -26,8 +26,8 @@ public class ServiceCompanyEntity extends BaseEntity {
     private String advantages;
     @Column(name = "BANNER")
     private String banner;
-    @Column(name = "PERCENT")
-    private Integer percent;
+    @Column(name = "STATUS")
+    private Integer status;
 
     public Long getId() {
         return id;
@@ -69,14 +69,6 @@ public class ServiceCompanyEntity extends BaseEntity {
         this.banner = banner;
     }
 
-    public Integer getPercent() {
-        return percent;
-    }
-
-    public void setPercent(Integer percent) {
-        this.percent = percent;
-    }
-
     public String getIntroduce() {
         return introduce;
     }
@@ -91,5 +83,13 @@ public class ServiceCompanyEntity extends BaseEntity {
 
     public void setAdvantages(String advantages) {
         this.advantages = advantages;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 }

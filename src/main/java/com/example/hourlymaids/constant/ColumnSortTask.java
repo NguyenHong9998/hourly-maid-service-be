@@ -1,7 +1,7 @@
 package com.example.hourlymaids.constant;
 
 public enum ColumnSortTask {
-    NAME("u.fullName", "NAME"),
+    NAME("c.fullName", "NAME"),
     WORK_DATE("workDate", "WORK_DATE"),
     START_TIME("startTime", "START_TIME"),
     END_TIME("endTime", "END_TIME"),

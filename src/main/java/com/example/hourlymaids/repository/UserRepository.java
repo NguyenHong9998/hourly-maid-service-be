@@ -12,23 +12,21 @@ import java.util.List;
 
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
-    UserEntity findByAccountId(Long accountId);
+    UserEntity findByEmail(String email);
 
     UserEntity findByPhoneNumber(String phone);
 
-    @Query("select u, a.email, r.name from UserEntity u inner join AccountEntity a on u.accountId = a.id " +
-            " inner join RoleEntity r on a.roleId = r.id where upper(a.email) like %?1%")
+    @Query("select u, r.name from UserEntity u " +
+            " inner join RoleEntity r on ( u.roleId = r.id and u.roleId not in(4) ) where upper(u.email) like %?1% ")
     Page<Object[]> findAllUser(String valueSearch, Pageable pageable);
 
-    @Query("select u, a.email, r.name from UserEntity u inner join AccountEntity a on u.accountId = a.id " +
-            " inner join RoleEntity r on a.roleId = r.id where upper(a.email) like %?2% and r.id = ?1")
+    @Query("select u, r.name from UserEntity u  " +
+            " inner join RoleEntity r on ( u.roleId = r.id and u.roleId not in(4) ) where upper(u.email) like %?2% and r.id = ?1")
     Page<Object[]> findAllUserAndStatus(Long role, String valueSearch, Pageable pageable);
 
-    @Query("select u from UserEntity u left join AccountEntity c on (u.accountId = c.id and c.roleId = 3)where u.status = 1 and u.id not in ?1")
+    @Query("select u from UserEntity u  where u.status = 1 and u.id not in ?1 and u.roleId = 3")
     List<UserEntity> findUserNotInListIds(List<Long> ids);
 
-    @Query("select u from UserEntity u left join AccountEntity c on (u.accountId = c.id and c.roleId = 3)where u.status = 1 ")
+    @Query("select u from UserEntity u  where u.status = 1 and u.roleId = 3 ")
     List<UserEntity> findUserHasStatusNotBlock();
-
-
 }

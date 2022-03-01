@@ -19,11 +19,9 @@ import com.example.hourlymaids.constant.CustomException;
 import com.example.hourlymaids.constant.Error;
 import com.example.hourlymaids.domain.RoleDomain;
 import com.example.hourlymaids.domain.UserDomain;
-import com.example.hourlymaids.repository.AccountRepository;
 import com.example.hourlymaids.repository.RoleRepository;
 import com.example.hourlymaids.util.AsymmetricCryptography;
 import com.example.hourlymaids.util.GenerateKeys;
-import com.example.hourlymaids.util.StringUtils;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,8 +76,6 @@ public class TokenProvider implements Serializable {
     private AsymmetricCryptography cryptography;
     @Autowired
     private RoleRepository roleRepository;
-    @Autowired
-    private AccountRepository accountRepository;
 
     @PostConstruct
     public void initKeys() throws Exception {
@@ -210,16 +206,15 @@ public class TokenProvider implements Serializable {
         String[] data = this.getUsernameFromToken(token).split(";");
         UserDomain userDTO = new UserDomain();
 
-        AccountEntity accountEntity = accountRepository.findByEmail(data[0]);
-        if (accountEntity != null) {
-            UserEntity userEntity = usersRepository.findByAccountId(accountEntity.getId());
+        UserEntity userEntity = usersRepository.findByEmail(data[0]);
+        if (userEntity != null) {
             if (userEntity == null) {
                 throw new CustomException(Error.TOKEN_INVALID.getMessage(), Error.TOKEN_INVALID.getCode(), HttpStatus.BAD_REQUEST);
             }
             userDTO.setUserId(userEntity.getId());
-            userDTO.setEmail(accountEntity.getEmail());
-            userDTO.setPassword(accountEntity.getPassword());
-            RoleEntity roleEntity = roleRepository.findById(accountEntity.getRoleId()).orElse(null);
+            userDTO.setEmail(userEntity.getEmail());
+            userDTO.setPassword(userEntity.getPassword());
+            RoleEntity roleEntity = roleRepository.findById(userEntity.getRoleId()).orElse(null);
             userDTO.setRoles(Arrays.asList(new RoleDomain(roleEntity.getId(), roleEntity.getName())));
 
             final JwtParser jwtParser = Jwts.parser().setSigningKey(privateKey);

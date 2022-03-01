@@ -5,7 +5,6 @@ import com.example.hourlymaids.constant.*;
 import com.example.hourlymaids.constant.Error;
 import com.example.hourlymaids.domain.*;
 import com.example.hourlymaids.entity.*;
-import com.example.hourlymaids.repository.AccountRepository;
 import com.example.hourlymaids.repository.LeaveDateRepository;
 import com.example.hourlymaids.repository.RoleRepository;
 import com.example.hourlymaids.repository.UserRepository;
@@ -36,9 +35,6 @@ public class LeaveDateServiceImpl implements LeaveDateService {
     private UserRepository userRepository;
 
     @Autowired
-    private AccountRepository accountRepository;
-
-    @Autowired
     private RoleRepository roleRepository;
 
     @Override
@@ -60,7 +56,7 @@ public class LeaveDateServiceImpl implements LeaveDateService {
                 entity.setUserId(userId);
                 Date start = DateTimeUtils.convertStringToDateOrNull(t.getStart(), DateTimeUtils.DDMMYYYYHHMMSS);
                 Date end = DateTimeUtils.convertStringToDateOrNull(t.getEnd(), DateTimeUtils.DDMMYYYYHHMMSS);
-                if (start.before(end)) {
+                if (start.after(end)) {
                     throw new CustomException("Thời gian nghỉ không hợp lệ", "S00000", HttpStatus.BAD_REQUEST);
                 }
                 entity.setStart(start);

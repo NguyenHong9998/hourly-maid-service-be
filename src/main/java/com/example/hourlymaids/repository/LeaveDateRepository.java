@@ -12,7 +12,7 @@ import java.util.List;
 
 @Repository
 public interface LeaveDateRepository extends JpaRepository<LeaveDateEntity, Long> {
-    @Query("select ld, u.fullName, u.avatar from LeaveDateEntity ld left join UserEntity u on ld.userId = u.id where ld.leaveDate =?1 and u.fullName like %?2%")
+    @Query("select ld, u.fullName, u.avatar from LeaveDateEntity ld left join UserEntity u on ld.userId = u.id where u.roleId =3 and ld.leaveDate =?1 and u.fullName like %?2%")
     Page<Object[]> findByLeaveDate(Date start, String valueSearch, Pageable pageable);
 
     @Query("select distinct l.leaveDate from  LeaveDateEntity l")

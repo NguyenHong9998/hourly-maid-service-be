@@ -17,4 +17,10 @@ public interface ServiceCompanyService {
     OverviewServiceDomain getServiceOverviewDetail(String startDate, String endDate);
 
     List<ServiceOverviewDetailDomain> getOverviewDetailOfService(String startDate, String endDate);
+
+    OverviewServiceDomain getServiceOverviewDetailForEmployee(String startDate, String endDate);
+
+    List<ServiceOverviewDetailDomain> getOverviewDetailOfServiceForEmployee(String startDate, String endDate);
+
+    void changeStatusService(ChangeStatusDomain domain);
 }

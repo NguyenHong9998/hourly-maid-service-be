@@ -9,6 +9,7 @@ import com.example.hourlymaids.repository.*;
 import com.example.hourlymaids.util.DateTimeUtils;
 import com.example.hourlymaids.util.SendMailUtils;
 import com.example.hourlymaids.util.StringUtils;
+import com.example.hourlymaids.util.UserUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -50,9 +51,6 @@ public class TaskServiceImpl implements TaskService {
     private ServiceTaskRepository serviceTaskRepository;
 
     @Autowired
-    private ClientRepository clientRepository;
-
-    @Autowired
     private SendMailUtils sendMailUtils;
 
     @Autowired
@@ -72,8 +70,6 @@ public class TaskServiceImpl implements TaskService {
 
         Date start = DateTimeUtils.convertStringToDateOrNull(startTime, DateTimeUtils.YYYYMMDDhhmmss);
         Date end = DateTimeUtils.convertStringToDateOrNull(endTime, DateTimeUtils.YYYYMMDDhhmmss);
-        Date milestone = new Date(start.getTime() - 3600000);
-        Date milestoneDate = DateTimeUtils.convertStringToDateOrNull(startTime, DateTimeUtils.YYYYMMDD);
 
         Period p = new Period(new DateTime(start.getTime()), new DateTime(end.getTime()));
         int hours = p.getHours();
@@ -118,18 +114,20 @@ public class TaskServiceImpl implements TaskService {
         if (StringUtils.isEmpty(email) || StringUtils.isEmpty(phone)) {
             throw new CustomException(Error.EMAIL_OR_PHONE_EMPTY.getMessage(), Error.EMAIL_OR_PHONE_EMPTY.getCode(), HttpStatus.BAD_REQUEST);
         }
-        ClientEntity clientEntity;
-        clientEntity = clientRepository.findByEmail(email);
-        if (clientEntity == null) {
-            clientEntity = new ClientEntity();
-            clientEntity.setEmail(email);
+        UserEntity userEntity;
+        userEntity = userRepository.findByEmail(email);
+        if (userEntity == null) {
+            userEntity = new UserEntity();
+            userEntity.setEmail(email);
             String password = RandomStringUtils.randomAlphanumeric(6);
-            clientEntity.setPassword(new BCryptPasswordEncoder().encode(password));
-            clientEntity.setAvatar("https://www.sibberhuuske.nl/wp-content/uploads/2016/10/default-avatar.png");
-            clientEntity.setFullName(domain.getUserName());
-            clientEntity.setPhoneNumber(domain.getPhone());
-            clientEntity = clientRepository.save(clientEntity);
-            sendMailToClient(email, password, clientEntity.getFullName());
+            userEntity.setPassword(new BCryptPasswordEncoder().encode(password));
+            userEntity.setAvatar("https://www.sibberhuuske.nl/wp-content/uploads/2016/10/default-avatar.png");
+            userEntity.setFullName(domain.getUserName());
+            userEntity.setPhoneNumber(domain.getPhone());
+            userEntity.setRoleId(4l);
+            userEntity = userRepository.save(userEntity);
+
+            sendMailToClient(email, password, userEntity.getFullName());
         }
 
         TaskEntity taskEntity = new TaskEntity();
@@ -142,7 +140,7 @@ public class TaskServiceImpl implements TaskService {
         Date milestoneDate = DateTimeUtils.convertStringToDateOrNull(startTime, DateTimeUtils.YYYYMMDD);
 
         taskEntity.setWorkDate(milestoneDate);
-        taskEntity.setUserId(clientEntity.getId());
+        taskEntity.setUserId(userEntity.getId());
         taskEntity.setNumberUser(StringUtils.convertStringToIntegerOrNull(domain.getNumOfEmployee()));
         taskEntity.setStartTime(start);
         taskEntity.setCompleteTime(end);
@@ -238,13 +236,54 @@ public class TaskServiceImpl implements TaskService {
                     new MapDomain(TaskStatus.DONE.getValue(), taskEntity.getPaidTime()));
             listTimeStatus = listTimeStatus.stream().filter(t -> t.getValue() != null).sorted(Comparator.nullsLast(
                     (e1, e2) -> e2.getValue().compareTo(e1.getValue()))).collect(Collectors.toList());
-//
-//            if (taskEntity.getCancelTime() == null) {
-//                domain.setStatus(TaskStatus.CREATED.getValue());
-//            } else if (taskEntity.getAssignEmployeeTime() != null) {
-//
-//            }
             domain.setStatus(listTimeStatus.get(0).getKey());
+            return domain;
+        }).collect(Collectors.toList());
+
+        ResponseDataAPI responseDataAPI = new ResponseDataAPI();
+        responseDataAPI.setData(result);
+        responseDataAPI.setTotalRows(entities.getTotalElements());
+        return responseDataAPI;
+    }
+
+    @Override
+    public ResponseDataAPI getListTaskOfUser(GetListRequest request) {
+        Pageable pageable = null;
+        pageable = getPageable(request, pageable);
+
+        String status = request.getStatus();
+        Page<TaskEntity> entities;
+        Long currenUser = UserUtils.getCurrentUserId();
+        if (StringUtils.isEmpty(status)) {
+            entities = taskRepository.findAllOfUserWithPageable(currenUser, pageable);
+        } else if (TaskStatus.ASSIGNED.getValue().equals(status)) {
+            entities = taskRepository.findAssignedOfUserWithPageable(currenUser, pageable);
+        } else if (TaskStatus.UN_ASSIGNED.getValue().equals(status)) {
+            entities = taskRepository.findUnAssignedOfUserWithPageable(currenUser, pageable);
+        } else if (TaskStatus.CANCELED.getValue().equals(status)) {
+            entities = taskRepository.findCanceledOfUserWithPageable(currenUser, pageable);
+        } else if (TaskStatus.DONE.getValue().equals(status)) {
+            entities = taskRepository.findPaidOfUserWithPageable(currenUser, pageable);
+        } else {
+            entities = taskRepository.findAllOfUserWithPageable(currenUser, pageable);
+        }
+
+        List<Object> result = entities.stream().map(taskEntity -> {
+            GetListTaskUserDomain domain = new GetListTaskUserDomain();
+            domain.setId(taskEntity.getId().toString());
+            domain.setAddress(taskEntity.getAddress());
+            domain.setStartTime(StringUtils.convertDateToStringFormatPattern(taskEntity.getStartTime(), DateTimeUtils.hhmmss));
+            domain.setEndTime(StringUtils.convertDateToStringFormatPattern(taskEntity.getCompleteTime(), DateTimeUtils.hhmmss));
+            domain.setWorkDate(StringUtils.convertDateToStringFormatPattern(taskEntity.getWorkDate(), DateTimeUtils.DDMMYYYY));
+            List<MapDomain> listTimeStatus = Arrays.asList(new MapDomain(TaskStatus.CREATED.getValue(), taskEntity.getCreatedDate()),
+                    new MapDomain(TaskStatus.CANCELED.getValue(), taskEntity.getCancelTime()),
+                    new MapDomain(TaskStatus.ASSIGNED.getValue(), taskEntity.getAssignEmployeeTime()),
+                    new MapDomain(TaskStatus.DONE.getValue(), taskEntity.getPaidTime()));
+            listTimeStatus = listTimeStatus.stream().filter(t -> t.getValue() != null).sorted(Comparator.nullsLast(
+                    (e1, e2) -> e2.getValue().compareTo(e1.getValue()))).collect(Collectors.toList());
+            domain.setStatus(listTimeStatus.get(0).getKey());
+            List<String> employeeAvatar = employeeTaskRepository.findEmployeeOfTask(taskEntity.getId()).stream().map(t -> t.getAvatar()).collect(Collectors.toList());
+            domain.setEmployeeAvatar(employeeAvatar);
             return domain;
         }).collect(Collectors.toList());
 
@@ -269,10 +308,70 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public ResponseDataAPI getListTaskOfEmployee(GetListRequest request, String date) {
+        List<String> columnSort = Arrays.asList(ColumnSortTask.NAME.getName(), ColumnSortTask.START_TIME.getName(), ColumnSortTask.WORK_DATE.getName(), ColumnSortTask.START_TIME.getName(), ColumnSortTask.END_TIME.getName());
+        Pageable pageable = null;
+        if (columnSort.contains(request.getColumnSort())) {
+            if (ColumnSortTask.NAME.getName().equals(request.getColumnSort())) {
+                request.setColumnSort(ColumnSortTask.NAME.getValue());
+            } else if (ColumnSortTask.START_TIME.getName().equals(request.getColumnSort())) {
+                request.setColumnSort(ColumnSortTask.START_TIME.getValue());
+            } else if (ColumnSortTask.END_TIME.getName().equals(request.getColumnSort())) {
+                request.setColumnSort(ColumnSortTask.END_TIME.getValue());
+            } else if (ColumnSortTask.WORK_DATE.getName().equals(request.getColumnSort())) {
+                request.setColumnSort(ColumnSortTask.WORK_DATE.getValue());
+            }
+            pageable = getPageable(request, pageable);
+        } else {
+            pageable = PageRequest.of(request.getOffset(), request.getLimit(), Sort.by(ColumnSortTask.CREATED_DATE.getValue()).descending());
+        }
+        String valueSearch = StringUtils.replaceSpecialCharacter(request.getValueSearch()).toUpperCase();
+        Long employeeId = UserUtils.getCurrentUserId();
+        Date workDate = DateTimeUtils.convertStringToDateOrNull(date, DateTimeUtils.YYYYMMDD);
+        Page<Object[]> entities = taskRepository.findAllOfEmployeeWithPageable(employeeId, valueSearch, workDate, pageable);
+
+
+        List<Object> result = entities.stream().map(objects -> {
+            GetListTaskDomain domain = new GetListTaskDomain();
+            TaskEntity taskEntity = (TaskEntity) objects[0];
+            domain.setUserAvatar(StringUtils.convertObjectToString(objects[1]));
+            domain.setUserName(StringUtils.convertObjectToString(objects[2]));
+            domain.setId(taskEntity.getId().toString());
+            domain.setAddress(taskEntity.getAddress());
+            domain.setStartTime(StringUtils.convertDateToStringFormatPattern(taskEntity.getStartTime(), DateTimeUtils.hhmmss));
+            domain.setEndTime(StringUtils.convertDateToStringFormatPattern(taskEntity.getCompleteTime(), DateTimeUtils.hhmmss));
+            domain.setWorkDate(StringUtils.convertDateToStringFormatPattern(taskEntity.getWorkDate(), DateTimeUtils.DDMMYYYY));
+            List<MapDomain> listTimeStatus = Arrays.asList(new MapDomain(TaskStatus.CREATED.getValue(), taskEntity.getCreatedDate()),
+                    new MapDomain(TaskStatus.CANCELED.getValue(), taskEntity.getCancelTime()),
+                    new MapDomain(TaskStatus.ASSIGNED.getValue(), taskEntity.getAssignEmployeeTime()),
+                    new MapDomain(TaskStatus.DONE.getValue(), taskEntity.getPaidTime()));
+            listTimeStatus = listTimeStatus.stream().filter(t -> t.getValue() != null).sorted(Comparator.nullsLast(
+                    (e1, e2) -> e2.getValue().compareTo(e1.getValue()))).collect(Collectors.toList());
+            domain.setStatus(listTimeStatus.get(0).getKey());
+            return domain;
+        }).collect(Collectors.toList());
+
+        ResponseDataAPI responseDataAPI = new ResponseDataAPI();
+        responseDataAPI.setData(result);
+        responseDataAPI.setTotalRows(entities.getTotalElements());
+        return responseDataAPI;
+    }
+
+    @Override
+    public List<String> getListWorkDateOfEmployee() {
+        Long userId = UserUtils.getCurrentUserId();
+        List<EmployeeTaskEntity> employeeTaskEntities = employeeTaskRepository.findByEmployeeId(userId);
+        List<Long> taskId = employeeTaskEntities.stream().map(t -> t.getTaskId()).collect(Collectors.toList());
+        List<TaskEntity> taskEntities = taskRepository.findAllById(taskId);
+        List<String> workDate = taskEntities.stream().map(t -> StringUtils.convertDateToStringFormatPattern(t.getWorkDate(), DateTimeUtils.YYYYMMDD)).collect(Collectors.toList());
+        return workDate;
+    }
+
+    @Override
     public TaskDetailDomain getTaskDetail(String taskId) {
         Long task = StringUtils.convertObjectToLongOrNull(taskId);
         TaskEntity taskEntity = taskRepository.findById(task).orElse(null);
-        ClientEntity clientEntity = clientRepository.findById(taskEntity.getUserId()).orElse(null);
+        UserEntity clientEntity = userRepository.findById(taskEntity.getUserId()).orElse(null);
         TaskDetailDomain taskDetailDomain = new TaskDetailDomain();
         taskDetailDomain.setWorkDate(StringUtils.convertDateToStringFormatyyyyMMdd(taskEntity.getWorkDate()));
         taskDetailDomain.setNote(taskEntity.getNote());
@@ -333,6 +432,19 @@ public class TaskServiceImpl implements TaskService {
             return domain;
         }).collect(Collectors.toList());
 
+        List<MapDomain> listTimeStatus = Arrays.asList(new MapDomain(TaskProgress.CREATED.getValue(), taskEntity.getCreatedDate()),
+                new MapDomain(TaskProgress.CANCELED.getValue(), taskEntity.getCancelTime()),
+                new MapDomain(TaskProgress.ASSIGNED.getValue(), taskEntity.getAssignEmployeeTime()),
+                new MapDomain(TaskProgress.DONE.getValue(), taskEntity.getPaidTime()));
+        listTimeStatus = listTimeStatus.stream().filter(t -> t.getValue() != null).sorted(Comparator.nullsLast(
+                (e1, e2) -> e2.getValue().compareTo(e1.getValue()))).collect(Collectors.toList());
+        List<TaskProgressDomain> progress = listTimeStatus.stream().map(t -> {
+            TaskProgressDomain domain = new TaskProgressDomain();
+            domain.setStatus(t.getKey());
+            domain.setTime(StringUtils.convertDateToStringFormatPattern(t.getValue(), DateTimeUtils.YYYYMMDDhhmmss));
+            return domain;
+        }).collect(Collectors.toList());
+        taskDetailDomain.setProgress(progress);
         checkPriceResponseDomain.setEmployees(employees);
         taskDetailDomain.setPriceList(checkPriceResponseDomain);
         return taskDetailDomain;
@@ -410,7 +522,7 @@ public class TaskServiceImpl implements TaskService {
         }
         taskEntity.setNote(updateTaskInform.getNote());
         taskEntity.setAddress(updateTaskInform.getAddress());
-        taskEntity.setAssignEmployeeTime(new Date());
+        taskRepository.save(taskEntity);
     }
 
     @Override
@@ -518,6 +630,95 @@ public class TaskServiceImpl implements TaskService {
         Date end = DateTimeUtils.convertStringToDateOrNull(endDate, DateTimeUtils.YYYYMMDD);
         List<Date> dateList = DateTimeUtils.getDatesBetweenDateRange(start, end);
         List<TaskEntity> taskEntities = taskRepository.findAll();
+        List<ItemOnDateDomain> details = new ArrayList<>();
+        for (Date date : dateList) {
+            Integer taskOnDate = taskEntities.stream().filter(t -> t.getWorkDate().getTime() == date.getTime()).collect(Collectors.toList()).size();
+            ItemOnDateDomain domain = new ItemOnDateDomain();
+            domain.setDate(StringUtils.convertDateToStringFormatPattern(date, DateTimeUtils.DDMMYYYY));
+            domain.setNumber(StringUtils.convertObjectToString(taskOnDate));
+            details.add(domain);
+        }
+        return details;
+    }
+
+    @Override
+    public OverviewTaskDomain getTaskOverviewDetailForEmployee(String statDate, String endDate) {
+        Long employeeId = UserUtils.getCurrentUserId();
+        OverviewTaskDomain overviewTaskDomain = new OverviewTaskDomain();
+        Date start = DateTimeUtils.convertStringToDateOrNull(statDate, DateTimeUtils.YYYYMMDD);
+        Date end = DateTimeUtils.convertStringToDateOrNull(endDate, DateTimeUtils.YYYYMMDD);
+        List<TaskEntity> taskEntities = taskRepository.findAllOfEmployee(employeeId);
+
+        Date today = new Date();
+        String oneDayAgoString = StringUtils.convertDateToStringFormatPattern(new Date(today.getTime() - 86400000), DateTimeUtils.YYYYMMDD);
+        Date oneDayAgo = DateTimeUtils.convertStringToDateOrNull(oneDayAgoString, DateTimeUtils.YYYYMMDD);
+
+        String twoDayAgoString = StringUtils.convertDateToStringFormatPattern(new Date(today.getTime() - 2 * 86400000), DateTimeUtils.YYYYMMDD);
+        Date twoDayAgo = DateTimeUtils.convertStringToDateOrNull(twoDayAgoString, DateTimeUtils.YYYYMMDD);
+        overviewTaskDomain.setNumCreate(StringUtils.convertObjectToString(taskEntities.size()));
+        List<TaskEntity> taskCreateTwoDayAgo = taskEntities.stream().filter(t -> t.getWorkDate().getTime() == twoDayAgo.getTime()).collect(Collectors.toList());
+        List<TaskEntity> taskCreateOneDayAgo = taskEntities.stream().filter(t -> t.getWorkDate().getTime() == oneDayAgo.getTime()).collect(Collectors.toList());
+
+        String percentCreate;
+        if (taskCreateTwoDayAgo.size() == 0) {
+            percentCreate = new DecimalFormat("0.00").format(taskCreateOneDayAgo.size() * 100);
+        } else {
+            percentCreate = new DecimalFormat("0.00").format((taskCreateOneDayAgo.size() - taskCreateTwoDayAgo.size()) / taskCreateTwoDayAgo.size() * 100 / 100);
+        }
+        overviewTaskDomain.setPercentCreate(percentCreate);
+        List<TaskEntity> taskCancel = taskEntities.stream().filter(t -> t.getCancelTime() != null).collect(Collectors.toList());
+        List<TaskEntity> taskCancelTwoDayAgo = taskCreateTwoDayAgo.stream().filter(t -> {
+            String cancelDateString = StringUtils.convertDateToStringFormatPattern(t.getCancelTime(), DateTimeUtils.YYYYMMDD);
+            Date cancelDate = DateTimeUtils.convertStringToDateOrNull(cancelDateString, DateTimeUtils.YYYYMMDD);
+            return t.getCancelTime() != null && cancelDate.getTime() == twoDayAgo.getTime();
+        }).collect(Collectors.toList());
+        List<TaskEntity> taskCancelOneDayAgo = taskCreateOneDayAgo.stream().filter(t -> {
+            String cancelDateString = StringUtils.convertDateToStringFormatPattern(t.getCancelTime(), DateTimeUtils.YYYYMMDD);
+            Date cancelDate = DateTimeUtils.convertStringToDateOrNull(cancelDateString, DateTimeUtils.YYYYMMDD);
+            return t.getCancelTime() != null && cancelDate.getTime() == oneDayAgo.getTime();
+        }).collect(Collectors.toList());
+        String percentCancel;
+        if (taskCancelTwoDayAgo.size() == 0) {
+            percentCancel = new DecimalFormat("00.00").format(taskCancelOneDayAgo.size() * 100);
+        } else {
+            percentCancel = new DecimalFormat("00.00").format((taskCancelOneDayAgo.size() - taskCancelTwoDayAgo.size()) / taskCancelTwoDayAgo.size() * 100 / 100);
+        }
+        overviewTaskDomain.setNumCancel(StringUtils.convertObjectToString(taskCancel.size()));
+        overviewTaskDomain.setPercentCancel(percentCancel);
+
+        List<TaskEntity> taskDone = taskEntities.stream().filter(t -> t.getPaidTime() != null).collect(Collectors.toList());
+        List<TaskEntity> taskDoneTwoDayAgo = taskCreateTwoDayAgo.stream().filter(t -> t.getPaidTime() != null).collect(Collectors.toList());
+        List<TaskEntity> taskDoneOneDayAgo = taskCreateOneDayAgo.stream().filter(t -> t.getPaidTime() != null).collect(Collectors.toList());
+        String percentDone;
+        if (taskDoneTwoDayAgo.size() == 0) {
+            percentDone = new DecimalFormat("00.00").format(taskDoneOneDayAgo.size() * 100);
+        } else {
+            percentDone = new DecimalFormat("00.00").format((taskDoneOneDayAgo.size() - taskDoneTwoDayAgo.size()) / taskDoneTwoDayAgo.size() * 100 / 100);
+        }
+        overviewTaskDomain.setNumDone(StringUtils.convertObjectToString(taskDone.size()));
+        overviewTaskDomain.setPercentDone(percentDone);
+
+        List<Date> dateList = DateTimeUtils.getDatesBetweenDateRange(start, end);
+
+        List<ItemOnDateDomain> details = new ArrayList<>();
+        for (Date date : dateList) {
+            Integer taskOnDate = taskEntities.stream().filter(t -> t.getWorkDate().getTime() == date.getTime()).collect(Collectors.toList()).size();
+            ItemOnDateDomain domain = new ItemOnDateDomain();
+            domain.setDate(StringUtils.convertDateToStringFormatPattern(date, DateTimeUtils.DDMMYYYY));
+            domain.setNumber(StringUtils.convertObjectToString(taskOnDate));
+            details.add(domain);
+        }
+        overviewTaskDomain.setDetails(details);
+
+        return overviewTaskDomain;
+    }
+
+    @Override
+    public List<ItemOnDateDomain> getOveriewDetailOfTaskForEmployee(String statDate, String endDate) {
+        Date start = DateTimeUtils.convertStringToDateOrNull(statDate, DateTimeUtils.YYYYMMDD);
+        Date end = DateTimeUtils.convertStringToDateOrNull(endDate, DateTimeUtils.YYYYMMDD);
+        List<Date> dateList = DateTimeUtils.getDatesBetweenDateRange(start, end);
+        List<TaskEntity> taskEntities = taskRepository.findAllOfEmployee(UserUtils.getCurrentUserId());
         List<ItemOnDateDomain> details = new ArrayList<>();
         for (Date date : dateList) {
             Integer taskOnDate = taskEntities.stream().filter(t -> t.getWorkDate().getTime() == date.getTime()).collect(Collectors.toList()).size();
