@@ -48,19 +48,16 @@ public class TaskServiceImpl implements TaskService {
     private TaskRepository taskRepository;
 
     @Autowired
-    private ServiceTaskRepository serviceTaskRepository;
-
-    @Autowired
     private SendMailUtils sendMailUtils;
-
-    @Autowired
-    private EmployeeTaskRepository employeeTaskRepository;
 
     @Autowired
     private UserRepository userRepository;
 
     @Value("${cms.link}")
     private String link;
+
+    @Autowired
+    private EmployeeServiceRepository employeeServiceRepository;
 
     @Override
     public CheckPriceResponseDomain getPriceList(CheckPriceDomain domain) {
@@ -141,29 +138,22 @@ public class TaskServiceImpl implements TaskService {
 
         taskEntity.setWorkDate(milestoneDate);
         taskEntity.setUserId(userEntity.getId());
-        taskEntity.setNumberUser(StringUtils.convertStringToIntegerOrNull(domain.getNumOfEmployee()));
+//        taskEntity.setNumberUser(StringUtils.convertStringToIntegerOrNull(domain.getNumOfEmployee()));
         taskEntity.setStartTime(start);
         taskEntity.setCompleteTime(end);
         taskEntity.setAddress(domain.getAddress());
-        taskEntity = taskRepository.save(taskEntity);
         taskEntity.setNote(domain.getNote());
-        List<ServiceTaskEntity> serviceTaskEntities = new ArrayList<>();
         List<ServiceCompanyEntity> serviceCompanyEntities = serviceCompanyRepository.findAllById(serviceId);
 
         for (ServiceCompanyEntity service : serviceCompanyEntities) {
             List<ServiceDiscountEntity> discountEntities = serviceDiscountRepository.findByServiceId(service.getId()).stream().sorted(Comparator.comparingLong(ServiceDiscountEntity::getSalePercentage)).collect(Collectors.toList());
-            ServiceTaskEntity item = new ServiceTaskEntity();
-            item.setTaskId(taskEntity.getId());
-            item.setServiceId(service.getId());
-
             ServiceDiscountEntity mostDiscount = discountEntities.size() > 0 ? discountEntities.get(0) : null;
             if (mostDiscount != null) {
-                item.setServiceDiscountId(mostDiscount.getId());
+                taskEntity.setDiscountServiceId(mostDiscount.getId());
             }
-            serviceTaskEntities.add(item);
         }
-        serviceTaskRepository.saveAll(serviceTaskEntities);
-
+        taskEntity.setServiceId(serviceId.get(0));
+        taskEntity = taskRepository.save(taskEntity);
     }
 
 
@@ -282,8 +272,8 @@ public class TaskServiceImpl implements TaskService {
             listTimeStatus = listTimeStatus.stream().filter(t -> t.getValue() != null).sorted(Comparator.nullsLast(
                     (e1, e2) -> e2.getValue().compareTo(e1.getValue()))).collect(Collectors.toList());
             domain.setStatus(listTimeStatus.get(0).getKey());
-            List<String> employeeAvatar = employeeTaskRepository.findEmployeeOfTask(taskEntity.getId()).stream().map(t -> t.getAvatar()).collect(Collectors.toList());
-            domain.setEmployeeAvatar(employeeAvatar);
+            UserEntity employee = userRepository.findById(taskEntity.getEmployeeId()).orElse(null);
+            domain.setEmployeeAvatar(employee == null ? new ArrayList<>() : Arrays.asList(employee.getAvatar()));
             return domain;
         }).collect(Collectors.toList());
 
@@ -360,9 +350,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public List<String> getListWorkDateOfEmployee() {
         Long userId = UserUtils.getCurrentUserId();
-        List<EmployeeTaskEntity> employeeTaskEntities = employeeTaskRepository.findByEmployeeId(userId);
-        List<Long> taskId = employeeTaskEntities.stream().map(t -> t.getTaskId()).collect(Collectors.toList());
-        List<TaskEntity> taskEntities = taskRepository.findAllById(taskId);
+        List<TaskEntity> taskEntities = taskRepository.findByEmployeeId(userId);
         List<String> workDate = taskEntities.stream().map(t -> StringUtils.convertDateToStringFormatPattern(t.getWorkDate(), DateTimeUtils.YYYYMMDD)).collect(Collectors.toList());
         return workDate;
     }
@@ -375,29 +363,29 @@ public class TaskServiceImpl implements TaskService {
         TaskDetailDomain taskDetailDomain = new TaskDetailDomain();
         taskDetailDomain.setWorkDate(StringUtils.convertDateToStringFormatyyyyMMdd(taskEntity.getWorkDate()));
         taskDetailDomain.setNote(taskEntity.getNote());
-        taskDetailDomain.setNumOfEmployee(taskEntity.getNumberUser() == null ? "0" : taskEntity.getNumberUser().toString());
+//        taskDetailDomain.setNumOfEmployee(taskEntity.getNumberUser() == null ? "0" : taskEntity.getNumberUser().toString());
         ClientInformDomain clientInform = new ClientInformDomain();
         clientInform.setAvatar(clientEntity.getAvatar());
         clientInform.setEmail(clientEntity.getEmail());
         clientInform.setPhone(clientEntity.getPhoneNumber());
         clientInform.setFullName(clientEntity.getFullName());
         taskDetailDomain.setClientInform(clientInform);
+        taskDetailDomain.setServiceId(StringUtils.convertObjectToString(taskEntity.getServiceId()));
         taskDetailDomain.setEndTime(StringUtils.convertDateToStringFormatPattern(taskEntity.getCompleteTime(), "HH:mm"));
         taskDetailDomain.setStartTime(StringUtils.convertDateToStringFormatPattern(taskEntity.getStartTime(), "HH:mm"));
         taskDetailDomain.setAddress(taskEntity.getAddress());
         CheckPriceResponseDomain checkPriceResponseDomain = new CheckPriceResponseDomain();
 
         List<PriceListDomain> priceList = new ArrayList<>();
-        List<ServiceTaskEntity> serviceTaskEntities = serviceTaskRepository.findByTaskId(task);
         Period p = new Period(new DateTime(taskEntity.getStartTime()), new DateTime(taskEntity.getCompleteTime()));
         int hours = p.getHours();
         int minutes = p.getMinutes();
         double totalHours = hours + (double) minutes / 60;
+        List<Long> serviceTaskId = Arrays.asList(taskEntity.getServiceId());
 
-        for (ServiceTaskEntity serviceTaskEntity : serviceTaskEntities) {
-            Long serviceId = serviceTaskEntity.getServiceId();
+        for (Long serviceId : serviceTaskId) {
             ServiceCompanyEntity service = serviceCompanyRepository.findById(serviceId).orElse(null);
-            Long serviceDiscount = serviceTaskEntity.getServiceDiscountId();
+            Long serviceDiscount = taskEntity.getDiscountServiceId();
 
             PriceListDomain item = new PriceListDomain();
             item.setHours(new DecimalFormat("0").format(totalHours));
@@ -421,8 +409,11 @@ public class TaskServiceImpl implements TaskService {
         checkPriceResponseDomain.setTotal(new DecimalFormat("0.00").format(total));
 
         List<UserInformDomain> employees = new ArrayList<>();
-
-        List<UserEntity> userEntities = employeeTaskRepository.findEmployeeOfTask(task);
+        List<UserEntity> userEntities = new ArrayList<>();
+        if (taskEntity.getEmployeeId() != null) {
+            UserEntity employee = userRepository.findById(taskEntity.getEmployeeId()).orElse(null);
+            userEntities = Arrays.asList(employee);
+        }
         employees = userEntities.stream().map(t -> {
             UserInformDomain domain = new UserInformDomain();
             domain.setId(t.getId().toString());
@@ -452,10 +443,12 @@ public class TaskServiceImpl implements TaskService {
 
 
     @Override
-    public List<UserInformDomain> getListUserAvailableWithTaskTime(String startTime, String endTime) {
-        List<LeaveDateEntity> leaveDateEntities = leaveDateRepository.findAll();
+    public List<UserInformDomain> getListUserAvailableWithTaskTime(String startTime, String endTime, String serviceId, String taskId) {
+        Long service = StringUtils.convertStringToLongOrNull(serviceId);
         Date startTimeCheck = DateTimeUtils.convertStringToDateOrNull(startTime, DateTimeUtils.YYYYMMDDhhmmss);
         Date endTimeCheck = DateTimeUtils.convertStringToDateOrNull(endTime, DateTimeUtils.YYYYMMDDhhmmss);
+        Date workDate = DateTimeUtils.convertStringToDateOrNull(startTime, DateTimeUtils.YYYYMMDD);
+        List<LeaveDateEntity> leaveDateEntities = leaveDateRepository.findLeaveDateOnDate(workDate);
 
         List<Long> unAvailableUser = new ArrayList<>();
         for (LeaveDateEntity entity : leaveDateEntities) {
@@ -465,13 +458,16 @@ public class TaskServiceImpl implements TaskService {
                 unAvailableUser.add(entity.getUserId());
             }
         }
-        List<TaskEntity> taskEntities = taskRepository.findAll();
+
+        List<TaskEntity> taskEntities = taskRepository.findTaskOnDate(workDate);
+        Long task = StringUtils.convertObjectToLongOrNull(taskId);
         for (TaskEntity taskEntity : taskEntities) {
             Date start = taskEntity.getStartTime();
             Date end = taskEntity.getCompleteTime();
-            if (endTimeCheck.getTime() < start.getTime() || startTimeCheck.getTime() < end.getTime()) {
-                List<Long> employeeTaskEntities = employeeTaskRepository.findEmployeeOfTask(taskEntity.getId()).stream().map(t -> t.getId()).collect(Collectors.toList());
-                unAvailableUser.addAll(employeeTaskEntities);
+            if (task != taskEntity.getId() && (endTimeCheck.getTime() < start.getTime() || startTimeCheck.getTime() < end.getTime())) {
+                if (taskEntity.getEmployeeId() != null) {
+                    unAvailableUser.add(taskEntity.getEmployeeId());
+                }
             }
         }
 
@@ -482,8 +478,8 @@ public class TaskServiceImpl implements TaskService {
         } else {
             userEntities = userRepository.findUserHasStatusNotBlock();
         }
-
-        List<UserInformDomain> response = userEntities.stream().map(t -> {
+        List<Long> listEmployeeHasEperience = employeeServiceRepository.findByServiceId(service).stream().map(t -> t.getUserId()).collect(Collectors.toList());
+        List<UserInformDomain> response = userEntities.stream().filter(t -> listEmployeeHasEperience.contains(t.getId())).map(t -> {
             UserInformDomain domain = new UserInformDomain();
             domain.setId(t.getId().toString());
             domain.setAvatar(t.getAvatar());
@@ -500,17 +496,10 @@ public class TaskServiceImpl implements TaskService {
         List<String> ids = assignTaskDomain.getIds();
         List<Long> id = ids.stream().map(t -> StringUtils.convertObjectToLongOrNull(t)).collect(Collectors.toList());
         Long task = StringUtils.convertObjectToLongOrNull(assignTaskDomain.getTaskId());
-        employeeTaskRepository.deleteAllByTaskId(task);
-        List<EmployeeTaskEntity> employeeTaskEntities = id.stream().map(t -> {
-            EmployeeTaskEntity employeeTaskEntity = new EmployeeTaskEntity();
-            employeeTaskEntity.setEmployeeId(t);
-            employeeTaskEntity.setTaskId(task);
-            return employeeTaskEntity;
-        }).collect(Collectors.toList());
-        employeeTaskRepository.saveAll(employeeTaskEntities);
-
         TaskEntity taskEntity = taskRepository.findById(task).orElse(null);
+        taskEntity.setEmployeeId(id.get(0));
         taskEntity.setAssignEmployeeTime(new Date());
+        taskRepository.save(taskEntity);
     }
 
     @Override
@@ -647,7 +636,7 @@ public class TaskServiceImpl implements TaskService {
         OverviewTaskDomain overviewTaskDomain = new OverviewTaskDomain();
         Date start = DateTimeUtils.convertStringToDateOrNull(statDate, DateTimeUtils.YYYYMMDD);
         Date end = DateTimeUtils.convertStringToDateOrNull(endDate, DateTimeUtils.YYYYMMDD);
-        List<TaskEntity> taskEntities = taskRepository.findAllOfEmployee(employeeId);
+        List<TaskEntity> taskEntities = taskRepository.findByEmployeeId(employeeId);
 
         Date today = new Date();
         String oneDayAgoString = StringUtils.convertDateToStringFormatPattern(new Date(today.getTime() - 86400000), DateTimeUtils.YYYYMMDD);
@@ -718,7 +707,7 @@ public class TaskServiceImpl implements TaskService {
         Date start = DateTimeUtils.convertStringToDateOrNull(statDate, DateTimeUtils.YYYYMMDD);
         Date end = DateTimeUtils.convertStringToDateOrNull(endDate, DateTimeUtils.YYYYMMDD);
         List<Date> dateList = DateTimeUtils.getDatesBetweenDateRange(start, end);
-        List<TaskEntity> taskEntities = taskRepository.findAllOfEmployee(UserUtils.getCurrentUserId());
+        List<TaskEntity> taskEntities = taskRepository.findByEmployeeId(UserUtils.getCurrentUserId());
         List<ItemOnDateDomain> details = new ArrayList<>();
         for (Date date : dateList) {
             Integer taskOnDate = taskEntities.stream().filter(t -> t.getWorkDate().getTime() == date.getTime()).collect(Collectors.toList()).size();

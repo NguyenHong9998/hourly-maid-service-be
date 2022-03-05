@@ -8,7 +8,7 @@ import com.example.hourlymaids.entity.*;
 import com.example.hourlymaids.repository.EmployeeServiceRepository;
 import com.example.hourlymaids.repository.ServiceCompanyRepository;
 import com.example.hourlymaids.repository.ServiceDiscountRepository;
-import com.example.hourlymaids.repository.ServiceTaskRepository;
+import com.example.hourlymaids.repository.TaskRepository;
 import com.example.hourlymaids.util.DateTimeUtils;
 import com.example.hourlymaids.util.StringUtils;
 import com.example.hourlymaids.util.UserUtils;
@@ -21,7 +21,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -31,13 +30,13 @@ public class ServiceCompanyServiceImpl implements ServiceCompanyService {
     private ServiceCompanyRepository serviceCompanyRepository;
 
     @Autowired
-    private ServiceTaskRepository serviceTaskRepository;
-
-    @Autowired
     private ServiceDiscountRepository serviceDiscountRepository;
 
     @Autowired
     private EmployeeServiceRepository employeeServiceRepository;
+
+    @Autowired
+    private TaskRepository taskRepository;
 
     @Override
     public ResponseDataAPI getListService(GetListRequest request) {
@@ -77,7 +76,7 @@ public class ServiceCompanyServiceImpl implements ServiceCompanyService {
 
         List<Object> result = entities.stream().map(service -> {
             ServiceDomain serviceDomain = new ServiceDomain();
-            Integer numTask = serviceTaskRepository.findByServiceId(service.getId()).size();
+            Integer numTask = taskRepository.findByServiceId(service.getId()).size();
             serviceDomain.setNumTask(StringUtils.convertObjectToString(numTask));
             List<Object[]> serviceDiscountEntities = serviceDiscountRepository.findDiscountByServiceId(service.getId());
             List<DiscountDomain> discountDomains = serviceDiscountEntities.stream().map(t -> {
@@ -206,7 +205,7 @@ public class ServiceCompanyServiceImpl implements ServiceCompanyService {
         List<Date> dateList = DateTimeUtils.getDatesBetweenDateRange(start, end);
         List<ServiceOverviewDetailDomain> details = new ArrayList<>();
         List<ServiceCompanyEntity> serviceCompanyEntities = serviceCompanyRepository.findAll();
-        List<ServiceTaskEntity> serviceTaskEntities = serviceTaskRepository.findAll();
+//        List<ServiceTaskEntity> serviceTaskEntities = serviceTaskRepository.findAll();
 
         for (ServiceCompanyEntity serviceCompanyEntity : serviceCompanyEntities) {
             ServiceOverviewDetailDomain domain = new ServiceOverviewDetailDomain();
@@ -214,8 +213,8 @@ public class ServiceCompanyServiceImpl implements ServiceCompanyService {
             for (Date date : dateList) {
                 ItemOnDateDomain item = new ItemOnDateDomain();
                 item.setDate(StringUtils.convertDateToStringFormatPattern(date, DateTimeUtils.DDMMYYYY));
-                Integer num = serviceTaskEntities.stream().filter(t -> t.getServiceId() == serviceCompanyEntity.getId() && t.getCreatedDate().getTime() == date.getTime())
-                        .collect(Collectors.toList()).size();
+
+                Integer num = taskRepository.findByServiceId(serviceCompanyEntity.getId()).size();
                 item.setNumber(StringUtils.convertObjectToString(num));
                 itemList.add(item);
             }
@@ -233,7 +232,7 @@ public class ServiceCompanyServiceImpl implements ServiceCompanyService {
         Date end = DateTimeUtils.convertStringToDateOrNull(endDate, DateTimeUtils.YYYYMMDD);
         List<ServiceCompanyEntity> serviceCompanyEntities = serviceCompanyRepository.findAll();
         overviewTaskDomain.setNumService(StringUtils.convertObjectToString(serviceCompanyEntities.size()));
-        List<ServiceTaskEntity> serviceTaskEntities = serviceTaskRepository.findAll();
+        List<TaskEntity> serviceTaskEntities = taskRepository.findAll();
         Map.Entry<Long, Long> maxTaskPerService = serviceTaskEntities.stream().collect(Collectors.groupingBy(t -> t.getServiceId(), Collectors.counting())).entrySet()
                 .stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).findFirst().get();
         Long maxServiceId = maxTaskPerService.getKey();
@@ -287,7 +286,7 @@ public class ServiceCompanyServiceImpl implements ServiceCompanyService {
         List<Date> dateList = DateTimeUtils.getDatesBetweenDateRange(start, end);
         List<ServiceOverviewDetailDomain> details = new ArrayList<>();
         List<ServiceCompanyEntity> serviceCompanyEntities = serviceCompanyRepository.findAll();
-        List<ServiceTaskEntity> serviceTaskEntities = serviceTaskRepository.findAllByEmployeeId(UserUtils.getCurrentUserId());
+//        List<ServiceTaskEntity> serviceTaskEntities = serviceTaskRepository.findAllByEmployeeId(UserUtils.getCurrentUserId());
 
         for (ServiceCompanyEntity serviceCompanyEntity : serviceCompanyEntities) {
             ServiceOverviewDetailDomain domain = new ServiceOverviewDetailDomain();
@@ -295,8 +294,7 @@ public class ServiceCompanyServiceImpl implements ServiceCompanyService {
             for (Date date : dateList) {
                 ItemOnDateDomain item = new ItemOnDateDomain();
                 item.setDate(StringUtils.convertDateToStringFormatPattern(date, DateTimeUtils.DDMMYYYY));
-                Integer num = serviceTaskEntities.stream().filter(t -> t.getServiceId() == serviceCompanyEntity.getId() && t.getCreatedDate().getTime() == date.getTime())
-                        .collect(Collectors.toList()).size();
+                Integer num = taskRepository.findByServiceId(serviceCompanyEntity.getId()).size();
                 item.setNumber(StringUtils.convertObjectToString(num));
                 itemList.add(item);
             }
@@ -314,7 +312,7 @@ public class ServiceCompanyServiceImpl implements ServiceCompanyService {
         Date end = DateTimeUtils.convertStringToDateOrNull(endDate, DateTimeUtils.YYYYMMDD);
         List<ServiceCompanyEntity> serviceCompanyEntities = serviceCompanyRepository.findAll();
         overviewTaskDomain.setNumService(StringUtils.convertObjectToString(serviceCompanyEntities.size()));
-        List<ServiceTaskEntity> serviceTaskEntities = serviceTaskRepository.findAllByEmployeeId(UserUtils.getCurrentUserId());
+        List<TaskEntity> serviceTaskEntities = taskRepository.findByEmployeeId(UserUtils.getCurrentUserId());
         Map.Entry<Long, Long> maxTaskPerService = serviceTaskEntities.stream().collect(Collectors.groupingBy(t -> t.getServiceId(), Collectors.counting())).entrySet()
                 .stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).findFirst().get();
         Long maxServiceId = maxTaskPerService.getKey();

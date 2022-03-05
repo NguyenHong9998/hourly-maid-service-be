@@ -14,6 +14,8 @@ import java.util.List;
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
     UserEntity findByEmail(String email);
 
+    UserEntity findByEmailAndRoleId(String email, Long role);
+
     UserEntity findByPhoneNumber(String phone);
 
     @Query("select u, r.name from UserEntity u " +

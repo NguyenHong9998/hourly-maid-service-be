@@ -17,7 +17,7 @@ public interface TaskService {
 
     TaskDetailDomain getTaskDetail(String taskId);
 
-    List<UserInformDomain> getListUserAvailableWithTaskTime(String startTime, String endTime);
+    List<UserInformDomain> getListUserAvailableWithTaskTime(String startTime, String endTime, String serviceId, String taskId);
 
     void assignEmployeeToTask(AssignTaskDomain assignTaskDomain);
 

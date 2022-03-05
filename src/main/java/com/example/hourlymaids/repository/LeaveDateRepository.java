@@ -18,4 +18,9 @@ public interface LeaveDateRepository extends JpaRepository<LeaveDateEntity, Long
     @Query("select distinct l.leaveDate from  LeaveDateEntity l")
     List<Date> getListLeaveDate();
 
+    @Query("select ld from LeaveDateEntity ld where ld.leaveDate >= ?1")
+    List<LeaveDateEntity> findBeforeDate(Date startTimeCheck);
+
+    @Query("select ld from LeaveDateEntity ld where ld.leaveDate = ?1")
+    List<LeaveDateEntity> findLeaveDateOnDate(Date workDate);
 }

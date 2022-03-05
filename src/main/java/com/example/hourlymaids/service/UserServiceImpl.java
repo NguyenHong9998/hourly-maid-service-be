@@ -83,7 +83,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             if (verifyEntity != null && verifyEntity.getIsVerifyEmail() != null && verifyEntity.getIsVerifyEmail() != 1) {
                 verifyEntity.setIsVerifyEmail(1);
                 verifyRepository.save(verifyEntity);
-            }else {
+            } else {
                 VerifyEntity entity = new VerifyEntity();
                 entity.setUserId(domain.getUserId());
                 entity.setIsVerifyEmail(1);
@@ -678,21 +678,21 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             maxUserInform.setNumStar(StringUtils.convertObjectToString(maxUser.getValue()));
         }
 
-        Map.Entry<Long, Integer> minUser = feedbackEntities.stream().map(t -> new UserStar(t.getEmployeeId(), t.getRateNumber()))
-                .collect(Collectors.groupingBy(t -> t.getUser(), Collectors.summingInt(t -> t.getStar())))
-                .entrySet().stream().sorted(Map.Entry.comparingByValue()).findFirst().orElse(null);
+        Map<Long, Integer> minUserMap = feedbackEntities.stream().map(t -> new UserStar(t.getEmployeeId(), t.getRateNumber()))
+                .collect(Collectors.groupingBy(t -> t.getUser(), Collectors.summingInt(t -> t.getStar())));
+
+        Map.Entry<Long, Integer> minUser = minUserMap.entrySet().stream().sorted(Map.Entry.comparingByValue()).findFirst().orElse(null);
         UserInformDomain minUserInform = new UserInformDomain();
+        List<UserEntity> userEntities = userRepository.findAll().stream().filter(t -> t.getRoleId() == 3).collect(Collectors.toList());
 
         if (maxUser != null) {
             UserEntity userEntity = userRepository.findById(minUser.getKey()).orElse(null);
             minUserInform.setAvatar(userEntity.getAvatar());
             minUserInform.setFullName(userEntity.getFullName());
             minUserInform.setNumStar(StringUtils.convertObjectToString(minUser.getValue()));
-        }
-        overviewUserDomain.setMaxUser(maxUserInform);
+        }overviewUserDomain.setMaxUser(maxUserInform);
         overviewUserDomain.setMinUser(minUserInform);
 
-        List<UserEntity> userEntities = userRepository.findUserHasStatusNotBlock();
         List<UserInformDomain> details = new ArrayList<>();
         for (UserEntity userEntity : userEntities) {
             UserInformDomain userInformDomain = new UserInformDomain();

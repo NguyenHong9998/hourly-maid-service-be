@@ -96,8 +96,10 @@ public class TaskController {
 
 
     @GetMapping("/check-employee")
-    private ResponseEntity<Object> getListUserAvailableWithTaskTime(@RequestParam("start_time") String startTime, @RequestParam("end_time") String endTime) {
-        return ResponseEntity.ok(ResponseDataAPI.builder().data(taskService.getListUserAvailableWithTaskTime(startTime, endTime)).build());
+    private ResponseEntity<Object> getListUserAvailableWithTaskTime(@RequestParam("start_time") String startTime,
+                                                                    @RequestParam("end_time") String endTime, @RequestParam("service_id") String serviceId,
+                                                                    @RequestParam(value = "task_id", required = false) String taskId) {
+        return ResponseEntity.ok(ResponseDataAPI.builder().data(taskService.getListUserAvailableWithTaskTime(startTime, endTime, serviceId, taskId)).build());
     }
 
     @PutMapping("/assign")
@@ -134,7 +136,7 @@ public class TaskController {
         return ResponseEntity.ok(ResponseDataAPI.builder().data(taskService.getOveriewDetailOfTask(startDate, endDate)).build());
     }
 
-     @GetMapping("/overview/employee")
+    @GetMapping("/overview/employee")
     private ResponseEntity<Object> getOveriewOfTaskOfEmployee(@RequestParam("start_date") String startDate, @RequestParam("end_date") String endDate) {
         return ResponseEntity.ok(ResponseDataAPI.builder().data(taskService.getTaskOverviewDetailForEmployee(startDate, endDate)).build());
     }

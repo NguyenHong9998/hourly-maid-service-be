@@ -17,6 +17,7 @@ public class TaskDetailDomain {
     private String startTime;
     private String endTime;
     private List<TaskProgressDomain> progress;
+    private String serviceId;
 
     public ClientInformDomain getClientInform() {
         return clientInform;
@@ -88,5 +89,13 @@ public class TaskDetailDomain {
 
     public void setProgress(List<TaskProgressDomain> progress) {
         this.progress = progress;
+    }
+
+    public String getServiceId() {
+        return serviceId;
+    }
+
+    public void setServiceId(String serviceId) {
+        this.serviceId = serviceId;
     }
 }

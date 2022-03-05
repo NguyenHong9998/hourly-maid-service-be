@@ -27,8 +27,7 @@ public class TaskEntity extends BaseEntity {
     @Column(name = "START_TIME")
     @Temporal(TemporalType.TIMESTAMP)
     private Date startTime;
-    @Column(name = "NUMBER_USEr")
-    private Integer numberUser;
+
     @Column(name = "COMPLETE_TIME")
     @Temporal(TemporalType.TIMESTAMP)
     private Date completeTime;
@@ -40,6 +39,12 @@ public class TaskEntity extends BaseEntity {
     private Date paidTime;
     @Column(name = "NOTE")
     private String note;
+    @Column(name = "EMPLOYEE_ID")
+    private Long employeeId;
+    @Column(name = "DISCOUNT_SERVICE_ID")
+    private Long discountServiceId;
+    @Column(name = "SERVICE_ID")
+    private Long serviceId;
 
     public Long getId() {
         return id;
@@ -71,14 +76,6 @@ public class TaskEntity extends BaseEntity {
 
     public void setStartTime(Date startTime) {
         this.startTime = startTime;
-    }
-
-    public Integer getNumberUser() {
-        return numberUser;
-    }
-
-    public void setNumberUser(Integer numberUser) {
-        this.numberUser = numberUser;
     }
 
     public Date getCompleteTime() {
@@ -129,5 +126,29 @@ public class TaskEntity extends BaseEntity {
 
     public void setNote(String note) {
         this.note = note;
+    }
+
+    public Long getEmployeeId() {
+        return employeeId;
+    }
+
+    public void setEmployeeId(Long employeeId) {
+        this.employeeId = employeeId;
+    }
+
+    public Long getDiscountServiceId() {
+        return discountServiceId;
+    }
+
+    public void setDiscountServiceId(Long discountServiceId) {
+        this.discountServiceId = discountServiceId;
+    }
+
+    public Long getServiceId() {
+        return serviceId;
+    }
+
+    public void setServiceId(Long serviceId) {
+        this.serviceId = serviceId;
     }
 }

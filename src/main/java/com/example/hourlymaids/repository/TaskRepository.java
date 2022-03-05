@@ -46,10 +46,17 @@ public interface TaskRepository extends JpaRepository<TaskEntity, Long> {
     @Query("select t from TaskEntity t  where t.userId =?1 and t.paidTime is not null ")
     Page<TaskEntity> findPaidOfUserWithPageable(Long userId, Pageable pageable);
 
-    @Query("select t, u.avatar, u.fullName from EmployeeTaskEntity et left join TaskEntity t on et.taskId = t.id left join UserEntity u on t.userId = u.id" +
-            " where t.workDate = ?3 and et.employeeId = ?1 and u.fullName like %?2%")
+    @Query("select t, u.avatar, u.fullName from TaskEntity t left join UserEntity u on t.userId = u.id" +
+            " where t.workDate = ?3 and t.employeeId = ?1 and u.fullName like %?2%")
     Page<Object[]> findAllOfEmployeeWithPageable(Long employeeId, String valueSearch, Date date, Pageable pageable);
+//
+//    @Query("select t from EmployeeTaskEntity  et left join TaskEntity t on et.taskId = t.id where et.employeeId = ?1 ")
+//    List<TaskEntity> findAllOfEmployee(Long employeeId);
 
-    @Query("select t from EmployeeTaskEntity  et left join TaskEntity t on et.taskId = t.id where et.employeeId = ?1 ")
-    List<TaskEntity> findAllOfEmployee(Long employeeId);
+    List<TaskEntity> findByEmployeeId(Long employeeId);
+
+    List<TaskEntity> findByServiceId(Long serviceId);
+
+    @Query("select t from TaskEntity t where t.workDate = ?1")
+    List<TaskEntity> findTaskOnDate(Date workDate);
 }
