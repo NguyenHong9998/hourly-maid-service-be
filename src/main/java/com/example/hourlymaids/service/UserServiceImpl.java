@@ -354,7 +354,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         userEntity.setStatus(employeeStatus.getCode());
         userRepository.save(userEntity);
 
-        UserRole userRole = UserRole.getRoleByValue(role);
+        UserRole userRole = UserRole.getRoleByName(role);
         RoleEntity roleEntity = roleRepository.findByName(userRole.getName());
         userEntity.setRoleId(roleEntity.getId());
         userRepository.save(userEntity);
@@ -615,7 +615,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         UserEntity userEntity = userRepository.findById(StringUtils.convertObjectToLongOrNull(id)).orElse(null);
         String email = domain.getEmail();
         UserEntity checkExistAcc = userRepository.findByEmail(email);
-        if (checkExistAcc != null && checkExistAcc.getId() != UserUtils.getCurrentUserId()) {
+        if (checkExistAcc != null && (checkExistAcc.getId() != UserUtils.getCurrentUserId() || UserUtils.getCurrentUser().getRoles().get(0).getRoleId() != 2)) {
             throw new CustomException(Error.EMAIL_EXIST.getMessage(), Error.EMAIL_EXIST.getCode(), HttpStatus.BAD_REQUEST);
         }
         String name = domain.getName();
@@ -648,9 +648,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 String createDate = StringUtils.convertDateToStringFormatPattern(t.getCreatedDate(), DateTimeUtils.YYYYMMDD);
                 Date cd = DateTimeUtils.convertStringToDateOrNull(createDate, DateTimeUtils.YYYYMMDD);
                 return cd.getTime() >= start.getTime() && cd.getTime() <= end.getTime() && t.getEmployeeId() == userEntity.getId();
-            }).map(t -> t.getRateNumber()).reduce(Integer::sum).get();
+            }).map(t -> t.getRateNumber()).reduce(Integer::sum).orElse(null);
             userInformDomain.setFullName(userEntity.getFullName());
-            userInformDomain.setNumStar(totalStar == 0 ? "0" : StringUtils.convertObjectToString(totalStar));
+            userInformDomain.setNumStar((totalStar == null || totalStar == 0) ? "0" : StringUtils.convertObjectToString(totalStar));
             details.add(userInformDomain);
         }
         return details;
@@ -690,7 +690,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             minUserInform.setAvatar(userEntity.getAvatar());
             minUserInform.setFullName(userEntity.getFullName());
             minUserInform.setNumStar(StringUtils.convertObjectToString(minUser.getValue()));
-        }overviewUserDomain.setMaxUser(maxUserInform);
+        }
+        overviewUserDomain.setMaxUser(maxUserInform);
         overviewUserDomain.setMinUser(minUserInform);
 
         List<UserInformDomain> details = new ArrayList<>();

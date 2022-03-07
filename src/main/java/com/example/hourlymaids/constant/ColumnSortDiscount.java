@@ -4,7 +4,8 @@ public enum ColumnSortDiscount {
     START_TIME("startTime", "START_TIME"),
     END_TIME("endTime", "END_TIME"),
     SALE_PERCENTAGE("salePercentage", "SALE_PERCENTAGE"),
-    TITLE("title", "TITLE");
+    TITLE("title", "TITLE"),
+    CREATE_DATE("createdDate", "CREATE_DATE");
 
     private String value;
     private String name;

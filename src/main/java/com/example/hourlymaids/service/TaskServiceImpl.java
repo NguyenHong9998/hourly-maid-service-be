@@ -406,7 +406,7 @@ public class TaskServiceImpl implements TaskService {
         }
         checkPriceResponseDomain.setPriceList(priceList);
         double total = priceList.stream().map(t -> Double.valueOf(t.getPrice())).reduce((t1, t2) -> Double.sum(t1, t2)).get();
-        checkPriceResponseDomain.setTotal(new DecimalFormat("0.00").format(total));
+        checkPriceResponseDomain.setTotal(new DecimalFormat("00.00").format(total));
 
         List<UserInformDomain> employees = new ArrayList<>();
         List<UserEntity> userEntities = new ArrayList<>();
@@ -645,14 +645,20 @@ public class TaskServiceImpl implements TaskService {
         String twoDayAgoString = StringUtils.convertDateToStringFormatPattern(new Date(today.getTime() - 2 * 86400000), DateTimeUtils.YYYYMMDD);
         Date twoDayAgo = DateTimeUtils.convertStringToDateOrNull(twoDayAgoString, DateTimeUtils.YYYYMMDD);
         overviewTaskDomain.setNumCreate(StringUtils.convertObjectToString(taskEntities.size()));
-        List<TaskEntity> taskCreateTwoDayAgo = taskEntities.stream().filter(t -> t.getWorkDate().getTime() == twoDayAgo.getTime()).collect(Collectors.toList());
-        List<TaskEntity> taskCreateOneDayAgo = taskEntities.stream().filter(t -> t.getWorkDate().getTime() == oneDayAgo.getTime()).collect(Collectors.toList());
+        List<TaskEntity> taskCreateTwoDayAgo = taskEntities.stream().filter(t -> {
+            String workDateString = StringUtils.convertDateToStringFormatPattern(t.getWorkDate(), DateTimeUtils.YYYYMMDD);
+            return DateTimeUtils.convertStringToDateOrNull(workDateString, DateTimeUtils.YYYYMMDD).getTime() == twoDayAgo.getTime();
+        }).collect(Collectors.toList());
+        List<TaskEntity> taskCreateOneDayAgo = taskEntities.stream().filter(t -> {
+            String workDateString = StringUtils.convertDateToStringFormatPattern(t.getWorkDate(), DateTimeUtils.YYYYMMDD);
+            return DateTimeUtils.convertStringToDateOrNull(workDateString, DateTimeUtils.YYYYMMDD).getTime() == oneDayAgo.getTime();
+        }).collect(Collectors.toList());
 
         String percentCreate;
         if (taskCreateTwoDayAgo.size() == 0) {
-            percentCreate = new DecimalFormat("0.00").format(taskCreateOneDayAgo.size() * 100);
+            percentCreate = new DecimalFormat("00.00").format(taskCreateOneDayAgo.size() * 100);
         } else {
-            percentCreate = new DecimalFormat("0.00").format((taskCreateOneDayAgo.size() - taskCreateTwoDayAgo.size()) / taskCreateTwoDayAgo.size() * 100 / 100);
+            percentCreate = new DecimalFormat("00.00").format((taskCreateOneDayAgo.size() - taskCreateTwoDayAgo.size()) / taskCreateTwoDayAgo.size() * 100 / 100);
         }
         overviewTaskDomain.setPercentCreate(percentCreate);
         List<TaskEntity> taskCancel = taskEntities.stream().filter(t -> t.getCancelTime() != null).collect(Collectors.toList());

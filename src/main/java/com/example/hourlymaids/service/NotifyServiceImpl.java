@@ -125,7 +125,8 @@ public class NotifyServiceImpl implements NotifyService {
         String valueSearch = StringUtils.replaceSpecialCharacter(request.getValueSearch()).toUpperCase();
         List<Integer> topics = new ArrayList<>();
         topics.add(NotifyTopic.ALL.getCode());
-        if(UserUtils.getCurrentUser().getRoles().get(0).getName() == UserRole.USER.getName()){
+        String roleName = UserUtils.getCurrentUser().getRoles().get(0).getName();
+        if(UserUtils.getCurrentUser().getRoles().get(0).getName().equals(UserRole.USER.getName())){
             topics.add(NotifyTopic.TO_USER.getCode());
         }else {
             topics.add(NotifyTopic.TO_EMPLOYEE.getCode());

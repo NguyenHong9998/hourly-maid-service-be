@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>DATABASE</ID>
+  <OriginalElement>26571993-5a5f-41ec-8934-1c5944f6a607</OriginalElement>
+  <nodes>
+    <node x="-10.5" y="444.5">26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.EMPLOYEE_SERVICE</node>
+    <node x="269.5" y="964.5">26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.SERVICE_DISCOUNT</node>
+    <node x="536.0" y="356.5">26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.USER</node>
+    <node x="269.5" y="611.5">26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.DISCOUNT</node>
+    <node x="549.5" y="-17.5">26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.LEAVE_DATE</node>
+    <node x="549.5" y="1146.5">26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.ROLE</node>
+    <node x="-10.5" y="1422.5">26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.NOTIFY</node>
+    <node x="829.5" y="953.5">26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.FEEDBACK</node>
+    <node x="-19.0" y="920.5">26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.SERVICE_COMPANY</node>
+    <node x="1082.5" y="905.5">26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.TASK</node>
+    <node x="1429.5" y="411.5">26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.USER_VERIFY</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.SERVICE_DISCOUNT" target="26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.DISCOUNT">
+      <point x="0.0" y="-115.5" />
+      <point x="0.0" y="148.5" />
+    </edge>
+    <edge source="26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.USER_VERIFY" target="26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.USER">
+      <point x="-130.5" y="-0.0" />
+      <point x="104.0" y="-0.0" />
+    </edge>
+    <edge source="26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.EMPLOYEE_SERVICE" target="26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.SERVICE_COMPANY">
+      <point x="0.0" y="115.5" />
+      <point x="0.0" y="-159.5" />
+    </edge>
+    <edge source="26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.LEAVE_DATE" target="26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.USER">
+      <point x="0.0" y="137.5" />
+      <point x="0.0" y="-203.5" />
+    </edge>
+    <edge source="26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.FEEDBACK" target="26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.USER">
+      <point x="-90.5" y="-0.0" />
+      <point x="680.0" y="1080.0" />
+      <point x="40.0" y="203.5" />
+    </edge>
+    <edge source="26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.SERVICE_DISCOUNT" target="26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.SERVICE_COMPANY">
+      <point x="-90.5" y="-0.0" />
+      <point x="99.0" y="-0.0" />
+    </edge>
+    <edge source="26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.EMPLOYEE_SERVICE" target="26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.USER">
+      <point x="90.5" y="-0.0" />
+      <point x="-104.0" y="-0.0" />
+    </edge>
+    <edge source="26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.USER" target="26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.ROLE">
+      <point x="0.0" y="203.5" />
+      <point x="0.0" y="-93.5" />
+    </edge>
+    <edge source="26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.TASK" target="26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.USER">
+      <point x="117.5" y="-0.0" />
+      <point x="1360.0" y="1120.0" />
+      <point x="1360.0" y="600.0" />
+      <point x="104.0" y="40.0" />
+    </edge>
+  </edges>
+  <settings layout="Directed Orthogonal" zoom="0.39040207717619385" x="631.2230737465189" y="697.6208296012629" />
+  <SelectedNodes>
+    <node>26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.EMPLOYEE_SERVICE</node>
+    <node>26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.SERVICE_DISCOUNT</node>
+    <node>26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.USER</node>
+    <node>26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.DISCOUNT</node>
+    <node>26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.LEAVE_DATE</node>
+    <node>26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.ROLE</node>
+    <node>26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.NOTIFY</node>
+    <node>26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.FEEDBACK</node>
+    <node>26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.SERVICE_COMPANY</node>
+    <node>26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.TASK</node>
+    <node>26571993-5a5f-41ec-8934-1c5944f6a607.TABLE:hourly-maid-service.public.USER_VERIFY</node>
+  </SelectedNodes>
+  <Categories>
+    <Category>Key columns</Category>
+    <Category>Columns</Category>
+    <Category>Virtual foreign keys</Category>
+  </Categories>
+</Diagram>
+

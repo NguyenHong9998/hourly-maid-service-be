@@ -59,7 +59,7 @@ public class DiscountServiceImpl implements DiscountService {
             }
             pageable = getPageable(request, pageable);
         } else {
-            pageable = PageRequest.of(request.getOffset(), request.getLimit(), Sort.by(ColumnSortDiscount.TITLE.getValue()).ascending());
+            pageable = PageRequest.of(request.getOffset(), request.getLimit(), Sort.by(ColumnSortDiscount.CREATE_DATE.getValue()).descending());
         }
         String valueSearch = StringUtils.replaceSpecialCharacter(request.getValueSearch());
 
@@ -100,7 +100,7 @@ public class DiscountServiceImpl implements DiscountService {
                     Sort.by(Sort.Order.desc(request.getColumnSort())));
         } else {
             pageable = PageRequest.of(request.getOffset(), request.getLimit(),
-                    Sort.by(Sort.Order.desc(ColumnSortDiscount.TITLE.getValue())));
+                    Sort.by(Sort.Order.desc(ColumnSortDiscount.CREATE_DATE.getValue())));
         }
         return pageable;
     }
