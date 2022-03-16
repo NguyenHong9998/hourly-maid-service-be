@@ -78,18 +78,18 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         response.setFullName(domain.getFullName());
         response.setAccessToken(tokenProvider.generateAccessToken(authentication));
         response.setRefreshToken(tokenProvider.generateRefreshToken(authentication));
-        if (domain.getRoles().get(0).getRoleId() == 3l) {
-            VerifyEntity verifyEntity = verifyRepository.findByUserId(domain.getUserId());
-            if (verifyEntity != null && verifyEntity.getIsVerifyEmail() != null && verifyEntity.getIsVerifyEmail() != 1) {
-                verifyEntity.setIsVerifyEmail(1);
-                verifyRepository.save(verifyEntity);
-            } else {
-                VerifyEntity entity = new VerifyEntity();
-                entity.setUserId(domain.getUserId());
-                entity.setIsVerifyEmail(1);
-                verifyRepository.save(entity);
-            }
-        }
+//        if (domain.getRoles().get(0).getRoleId() == 3l) {
+//            VerifyEntity verifyEntity = verifyRepository.findByUserId(domain.getUserId());
+//            if (verifyEntity != null && verifyEntity.getIsVerifyEmail() != null && verifyEntity.getIsVerifyEmail() != 1) {
+//                verifyEntity.setIsVerifyEmail(1);
+//                verifyRepository.save(verifyEntity);
+//            } else {
+//                VerifyEntity entity = new VerifyEntity();
+//                entity.setUserId(domain.getUserId());
+//                entity.setIsVerifyEmail(1);
+//                verifyRepository.save(entity);
+//            }
+//        }
         return response;
     }
 
