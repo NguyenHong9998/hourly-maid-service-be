@@ -63,7 +63,7 @@ public class ServiceCompanyServiceImpl implements ServiceCompanyService {
         } else {
             pageable = PageRequest.of(request.getOffset(), request.getLimit(), Sort.by(ColumnSortService.CREATED_DATE.getValue()).descending());
         }
-        String valueSearch = StringUtils.replaceSpecialCharacter(request.getValueSearch());
+        String valueSearch = StringUtils.replaceSpecialCharacter(request.getValueSearch()).toUpperCase();
         Page<ServiceCompanyEntity> entities;
         String status = request.getStatus();
         if (StringUtils.isEmpty(status)) {

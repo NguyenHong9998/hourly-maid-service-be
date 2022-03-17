@@ -28,7 +28,6 @@ public class ServiceCompanyController {
                                                           @RequestParam(value = "column_sort", required = false) String columnSort,
                                                           @RequestParam(value = "status", required = false) String status) {
         GetListRequest request = new GetListRequest(limit, offset, valueSearch, columnSort, typeSort);
-        System.out.println("xxxxxxxxxx: " + valueSearch);
         request.setStatus(status);
         ResponseDataAPI dataAPI = service.getListService(request);
         return ResponseEntity.ok(dataAPI);
