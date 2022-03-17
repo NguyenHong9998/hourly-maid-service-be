@@ -11,6 +11,7 @@ import com.example.hourlymaids.entity.ServiceDiscountEntity;
 import com.example.hourlymaids.repository.DiscountRepository;
 import com.example.hourlymaids.repository.ServiceCompanyRepository;
 import com.example.hourlymaids.repository.ServiceDiscountRepository;
+import com.example.hourlymaids.repository.TaskRepository;
 import com.example.hourlymaids.util.DateTimeUtils;
 import com.example.hourlymaids.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,8 @@ public class DiscountServiceImpl implements DiscountService {
     private ServiceCompanyRepository serviceCompanyRepository;
     @Autowired
     private ServiceDiscountRepository serviceDiscountRepository;
+    @Autowired
+    private TaskRepository taskRepository;
 
     @Override
     public ResponseDataAPI getListDiscount(GetListRequest request) {
@@ -79,7 +82,8 @@ public class DiscountServiceImpl implements DiscountService {
             domain.setTitle(discountEntity.getTitle());
             domain.setBanner(discountEntity.getBanner());
             domain.setPublic(DiscountStatus.getDiscountStatusByCode(discountEntity.getIsPublic()).getValue());
-            Integer numService = serviceDiscountRepository.findByDiscountId(discountEntity.getId()).size();
+            Integer numService = taskRepository.findListTaskByDiscountId(discountEntity.getId()).size();
+
             domain.setNumberService(numService.toString());
             return domain;
         }).collect(Collectors.toList());

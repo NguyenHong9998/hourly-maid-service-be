@@ -59,4 +59,8 @@ public interface TaskRepository extends JpaRepository<TaskEntity, Long> {
 
     @Query("select t from TaskEntity t where t.workDate = ?1")
     List<TaskEntity> findTaskOnDate(Date workDate);
+
+    @Query("select t from TaskEntity t left join ServiceDiscountEntity sd on t.discountServiceId = sd.id left join DiscountEntity d on sd.discountId = d.id " +
+            "where sd.discountId = ?1")
+    List<TaskEntity> findListTaskByDiscountId(Long discountId);
 }
