@@ -33,6 +33,19 @@ public class ServiceCompanyController {
         return ResponseEntity.ok(dataAPI);
     }
 
+    @GetMapping("/client")
+    public ResponseEntity<ResponseDataAPI> getListServiceForClient(@RequestParam(value = "offset", required = false) Integer offset,
+                                                          @RequestParam(value = "limit", required = false) Integer limit,
+                                                          @RequestParam(value = "value_search", required = false) String valueSearch,
+                                                          @RequestParam(value = "type_sort", required = false) String typeSort,
+                                                          @RequestParam(value = "column_sort", required = false) String columnSort,
+                                                          @RequestParam(value = "status", required = false) String status) {
+        GetListRequest request = new GetListRequest(limit, offset, valueSearch, columnSort, typeSort);
+        request.setStatus(status);
+        ResponseDataAPI dataAPI = service.getListService(request);
+        return ResponseEntity.ok(dataAPI);
+    }
+
     @GetMapping("/{service_id}")
     public ResponseEntity<ResponseDataAPI> getServiceDetail(@PathVariable("service_id") String serviceId) {
         return ResponseEntity.ok(ResponseDataAPI.builder().data(service.getServiceDetail(serviceId)).build());
