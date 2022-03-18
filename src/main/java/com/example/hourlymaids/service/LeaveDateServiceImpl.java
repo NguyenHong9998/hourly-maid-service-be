@@ -65,9 +65,15 @@ public class LeaveDateServiceImpl implements LeaveDateService {
                     throw new CustomException("Thời gian nghỉ không hợp lệ", "S00000", HttpStatus.BAD_REQUEST);
                 }
                 List<TaskEntity> taskOnLeaveDate = taskEntities.stream().filter(task ->
-                        (task.getCancelTime() == null || task.getPaidTime() != null) && (task.getCompleteTime().getTime() < start.getTime() || task.getStartTime().getTime() < end.getTime())).collect(Collectors.toList());
-                if (!CollectionUtils.isEmpty(taskOnLeaveDate)) {
-                    throw new CustomException("Tồn tại công việc có thời gian làm trùng với thời gian nghỉ trong ngày " + t, "S000000", HttpStatus.BAD_REQUEST);
+                        (task.getCancelTime() == null || task.getPaidTime() == null)).filter(
+                        task ->
+                                (task.getCompleteTime().getTime() > start.getTime() && task.getCompleteTime().getTime() < end.getTime())
+
+                                        || (task.getStartTime().getTime() > start.getTime() && task.getStartTime().getTime() < end.getTime())
+                ).collect(Collectors.toList());
+
+                if (taskOnLeaveDate.size() != 0) {
+                    throw new CustomException("Tồn tại công việc có thời gian làm trùng với thời gian nghỉ trong ngày " + t.getDate(), "S000000", HttpStatus.BAD_REQUEST);
                 }
                 entity.setStart(start);
                 entity.setEnd(end);
@@ -89,6 +95,7 @@ public class LeaveDateServiceImpl implements LeaveDateService {
             throw new CustomException(Error.EMPTY_NOTE.getMessage(), Error.EMPTY_NOTE.getCode(), HttpStatus.BAD_REQUEST);
         }
         LeaveDateEntity entity = leaveDateRepository.findById(StringUtils.convertObjectToLongOrNull(leaveDateDomain.getId())).orElse(null);
+        List<TaskEntity> taskEntities = taskRepository.findByEmployeeId(userId);
 
         List<LeaveDomain> leave = leaveDateDomain.getLeaveDomains();
         if (!CollectionUtils.isEmpty(leave)) {
@@ -98,8 +105,20 @@ public class LeaveDateServiceImpl implements LeaveDateService {
                 entity.setUserId(userId);
                 Date start = DateTimeUtils.convertStringToDateOrNull(t.getStart(), DateTimeUtils.DDMMYYYYHHMMSS);
                 Date end = DateTimeUtils.convertStringToDateOrNull(t.getEnd(), DateTimeUtils.DDMMYYYYHHMMSS);
-                if (start.before(end)) {
+                if (start.after(end)) {
                     throw new CustomException("Thời gian nghỉ không hợp lệ", "S00000", HttpStatus.BAD_REQUEST);
+                }
+
+                List<TaskEntity> taskOnLeaveDate = taskEntities.stream().filter(task ->
+                        (task.getCancelTime() == null || task.getPaidTime() == null)).filter(
+                        task ->
+                                (task.getCompleteTime().getTime() > start.getTime() && task.getCompleteTime().getTime() < end.getTime())
+
+                                        || (task.getStartTime().getTime() > start.getTime() && task.getStartTime().getTime() < end.getTime())
+                ).collect(Collectors.toList());
+
+                if (taskOnLeaveDate.size() != 0) {
+                    throw new CustomException("Tồn tại công việc có thời gian làm trùng với thời gian nghỉ trong ngày " + t.getDate(), "S000000", HttpStatus.BAD_REQUEST);
                 }
                 entity.setStart(start);
                 entity.setEnd(end);
