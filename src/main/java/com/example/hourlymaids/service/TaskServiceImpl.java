@@ -271,8 +271,12 @@ public class TaskServiceImpl implements TaskService {
             listTimeStatus = listTimeStatus.stream().filter(t -> t.getValue() != null).sorted(Comparator.nullsLast(
                     (e1, e2) -> e2.getValue().compareTo(e1.getValue()))).collect(Collectors.toList());
             domain.setStatus(listTimeStatus.get(0).getKey());
-            UserEntity employee = userRepository.findById(taskEntity.getEmployeeId()).orElse(null);
-            domain.setEmployeeAvatar(employee == null ? new ArrayList<>() : Arrays.asList(employee.getAvatar()));
+            if (taskEntity.getEmployeeId() == null) {
+                domain.setEmployeeAvatar(new ArrayList<>());
+            } else {
+                UserEntity employee = userRepository.findById(taskEntity.getEmployeeId()).orElse(null);
+                domain.setEmployeeAvatar(employee == null ? new ArrayList<>() : Arrays.asList(employee.getAvatar()));
+            }
             return domain;
         }).collect(Collectors.toList());
 
