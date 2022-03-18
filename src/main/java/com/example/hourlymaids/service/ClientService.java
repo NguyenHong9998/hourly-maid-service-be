@@ -1,5 +1,7 @@
 package com.example.hourlymaids.service;
 
+import com.example.hourlymaids.domain.UserInformDomain;
+
 public interface ClientService {
-    boolean checkExistClient(String email, String phone);
+    UserInformDomain checkExistClient(String email, String phone);
 }

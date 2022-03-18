@@ -2,6 +2,7 @@ package com.example.hourlymaids.controller;
 
 import com.example.hourlymaids.config.ResponseDataAPI;
 import com.example.hourlymaids.domain.ChangeNotifyStatusDomain;
+import com.example.hourlymaids.domain.DeleteDomain;
 import com.example.hourlymaids.domain.DiscountDomain;
 import com.example.hourlymaids.domain.GetListRequest;
 import com.example.hourlymaids.service.DiscountService;
@@ -17,10 +18,10 @@ public class DiscountController {
 
     @GetMapping("")
     public ResponseEntity<ResponseDataAPI> getListDiscount(@RequestParam(value = "offset", required = false) Integer offset,
-                                                          @RequestParam(value = "limit", required = false) Integer limit,
-                                                          @RequestParam(value = "value_search", required = false) String valueSearch,
-                                                          @RequestParam(value = "type_sort", required = false) String typeSort,
-                                                          @RequestParam(value = "column_sort", required = false) String columnSort) {
+                                                           @RequestParam(value = "limit", required = false) Integer limit,
+                                                           @RequestParam(value = "value_search", required = false) String valueSearch,
+                                                           @RequestParam(value = "type_sort", required = false) String typeSort,
+                                                           @RequestParam(value = "column_sort", required = false) String columnSort) {
         GetListRequest request = new GetListRequest(limit, offset, valueSearch, columnSort, typeSort);
         ResponseDataAPI dataAPI = service.getListDiscount(request);
         return ResponseEntity.ok(dataAPI);
@@ -42,10 +43,18 @@ public class DiscountController {
         service.createDiscount(domain);
         return ResponseEntity.ok(ResponseDataAPI.builder().build());
     }
+
     @PutMapping("/change-status")
     public ResponseEntity<Object> changeDiscountStatus(@RequestBody ChangeNotifyStatusDomain domain) {
         service.changeStatusDiscount(domain);
         return ResponseEntity.ok(ResponseDataAPI.builder().build());
+    }
+
+    @PostMapping("/delete")
+    public ResponseEntity<Object> deleteDiscount(@RequestBody DeleteDomain deleteDomain) {
+        service.deleteDomain(deleteDomain);
+        return ResponseEntity.ok(ResponseDataAPI.builder().build());
+
     }
 
 }

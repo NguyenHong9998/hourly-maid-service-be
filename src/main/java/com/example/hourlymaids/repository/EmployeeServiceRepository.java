@@ -19,4 +19,7 @@ public interface EmployeeServiceRepository extends JpaRepository<EmployeeService
     List<EmployeeServiceEntity> findByServiceId(Long serviceId);
 
     void deleteByUserId(Long userId);
+
+    EmployeeServiceEntity findByServiceIdAndAndUserId(Long serviceId, Long userId);
+
 }

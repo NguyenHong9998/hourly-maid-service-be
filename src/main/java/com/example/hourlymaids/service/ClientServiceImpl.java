@@ -1,5 +1,6 @@
 package com.example.hourlymaids.service;
 
+import com.example.hourlymaids.domain.UserInformDomain;
 import com.example.hourlymaids.entity.UserEntity;
 import com.example.hourlymaids.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,11 +12,14 @@ public class ClientServiceImpl implements ClientService {
     private UserRepository userRepository;
 
     @Override
-    public boolean checkExistClient(String email, String phone) {
+    public UserInformDomain checkExistClient(String email, String phone) {
         UserEntity clientEntity = userRepository.findByEmail(email);
-        if(clientEntity != null){
-            return true;
+        UserInformDomain userInformDomain = new UserInformDomain();
+        if (clientEntity != null) {
+            userInformDomain.setFullName(clientEntity.getFullName());
+            userInformDomain.setPhone(clientEntity.getPhoneNumber());
+            return userInformDomain;
         }
-        return false;
+        return null;
     }
 }

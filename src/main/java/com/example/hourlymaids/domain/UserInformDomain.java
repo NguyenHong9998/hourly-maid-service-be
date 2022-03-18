@@ -16,6 +16,7 @@ public class UserInformDomain {
     private String roleId;
     private String birthday;
     private String numStar;
+    private String numTask;
 
     public String getEmail() {
         return email;
@@ -103,5 +104,13 @@ public class UserInformDomain {
 
     public void setNumStar(String numStar) {
         this.numStar = numStar;
+    }
+
+    public String getNumTask() {
+        return numTask;
+    }
+
+    public void setNumTask(String numTask) {
+        this.numTask = numTask;
     }
 }

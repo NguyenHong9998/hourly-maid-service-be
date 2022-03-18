@@ -1,10 +1,7 @@
 package com.example.hourlymaids.service;
 
 import com.example.hourlymaids.config.ResponseDataAPI;
-import com.example.hourlymaids.domain.ChangeNotifyStatusDomain;
-import com.example.hourlymaids.domain.DiscountDomain;
-import com.example.hourlymaids.domain.GetListRequest;
-import com.example.hourlymaids.domain.ServiceDomain;
+import com.example.hourlymaids.domain.*;
 
 public interface DiscountService {
     ResponseDataAPI getListDiscount(GetListRequest request);
@@ -16,4 +13,7 @@ public interface DiscountService {
     void createDiscount(DiscountDomain domain);
 
     void  changeStatusDiscount(ChangeNotifyStatusDomain domain);
+
+    void deleteDomain(DeleteDomain deleteDomain);
+
 }

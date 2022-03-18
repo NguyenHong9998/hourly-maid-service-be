@@ -53,8 +53,7 @@ public class TaskServiceImpl implements TaskService {
     @Autowired
     private UserRepository userRepository;
 
-    @Value("${cms.link}")
-    private String link;
+    private String link = "http://hourly-maid-service-client.herokuapp.com/";
 
     @Autowired
     private EmployeeServiceRepository employeeServiceRepository;
@@ -116,15 +115,15 @@ public class TaskServiceImpl implements TaskService {
         if (userEntity == null) {
             userEntity = new UserEntity();
             userEntity.setEmail(email);
-            String password = RandomStringUtils.randomAlphanumeric(6);
-            userEntity.setPassword(new BCryptPasswordEncoder().encode(password));
+//            String password = RandomStringUtils.randomAlphanumeric(6);
+            userEntity.setPassword(new BCryptPasswordEncoder().encode("abc1234"));
             userEntity.setAvatar("https://www.sibberhuuske.nl/wp-content/uploads/2016/10/default-avatar.png");
             userEntity.setFullName(domain.getUserName());
             userEntity.setPhoneNumber(domain.getPhone());
             userEntity.setRoleId(4l);
             userEntity = userRepository.save(userEntity);
 
-            sendMailToClient(email, password, userEntity.getFullName());
+            sendMailToClient(email, "abc1234", userEntity.getFullName());
         }
 
         TaskEntity taskEntity = new TaskEntity();
@@ -420,6 +419,10 @@ public class TaskServiceImpl implements TaskService {
             domain.setFullName(t.getFullName());
             domain.setAvatar(t.getAvatar());
             domain.setPhone(t.getPhoneNumber());
+            EmployeeServiceEntity employeeServiceEntity = employeeServiceRepository.findByServiceIdAndAndUserId(serviceTaskId.get(0), t.getId());
+            domain.setNumStar(StringUtils.convertObjectToString(employeeServiceEntity.getLevel()));
+            Integer numTask = taskRepository.findByEmployeeId(t.getId()).size();
+            domain.setNumTask(StringUtils.convertObjectToString(numTask));
             return domain;
         }).collect(Collectors.toList());
 
@@ -483,8 +486,13 @@ public class TaskServiceImpl implements TaskService {
             UserInformDomain domain = new UserInformDomain();
             domain.setId(t.getId().toString());
             domain.setAvatar(t.getAvatar());
+            EmployeeServiceEntity employeeServiceEntity = employeeServiceRepository.findByServiceIdAndAndUserId(service, t.getId());
+            domain.setNumStar(StringUtils.convertObjectToString(employeeServiceEntity.getLevel()));
+            Integer numTask = taskRepository.findByEmployeeId(t.getId()).size();
+            domain.setNumTask(StringUtils.convertObjectToString(numTask));
             domain.setFullName(t.getFullName());
             domain.setPhone(t.getPhoneNumber());
+
             return domain;
         }).collect(Collectors.toList());
         return response;
@@ -498,8 +506,24 @@ public class TaskServiceImpl implements TaskService {
         Long task = StringUtils.convertObjectToLongOrNull(assignTaskDomain.getTaskId());
         TaskEntity taskEntity = taskRepository.findById(task).orElse(null);
         taskEntity.setEmployeeId(id.get(0));
+        UserEntity userEntity = userRepository.findById(id.get(0)).orElse(null);
         taskEntity.setAssignEmployeeTime(new Date());
         taskRepository.save(taskEntity);
+        sendMailToEmployee(userEntity.getFullName(), StringUtils.convertDateToStringFormatPattern(taskEntity.getWorkDate(), DateTimeUtils.YYYYMMDD), userEntity.getEmail());
+    }
+
+    void sendMailToEmployee(String employeeName, String date, String employeeEmail) {
+        SendMailDomain sendMailDomain = new SendMailDomain();
+        sendMailDomain.setToEmail(Arrays.asList(employeeEmail));
+        sendMailDomain.setMessageContent("");
+        String subject = "Công việc mới tại CleanMe";
+        String template = "send-mail-employee-template";
+        sendMailDomain.setSubject(subject);
+        Map<String, Object> paramInfo = new HashMap<>();
+        paramInfo.put("date", date);
+        paramInfo.put("username", employeeName);
+        paramInfo.put("linkCms", "https://hourly-maid-service-employee.herokuapp.com/");
+        sendMailUtils.sendMailWithTemplate(sendMailDomain, template, paramInfo);
     }
 
     @Override

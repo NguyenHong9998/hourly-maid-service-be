@@ -91,7 +91,6 @@ public class DiscountServiceImpl implements DiscountService {
         ResponseDataAPI responseDataAPI = new ResponseDataAPI();
         responseDataAPI.setData(result);
         responseDataAPI.setTotalRows(entities.getTotalElements());
-
         return responseDataAPI;
     }
 
@@ -248,5 +247,12 @@ public class DiscountServiceImpl implements DiscountService {
         }
         discountEntity.setIsPublic(DiscountStatus.ACTIVE.getCode());
         discountRepository.save(discountEntity);
+    }
+
+    @Transactional
+    @Override
+    public void deleteDomain(DeleteDomain deleteDomain) {
+        List<Long> ids = deleteDomain.getIds().stream().map(t -> StringUtils.convertObjectToLongOrNull(t)).collect(Collectors.toList());
+        discountRepository.deleteAllById(ids);
     }
 }

@@ -93,7 +93,7 @@ public class ServiceCompanyServiceImpl implements ServiceCompanyService {
             serviceDomain.setId(service.getId().toString());
             serviceDomain.setName(service.getServiceName());
             serviceDomain.setPrice(StringUtils.convertObjectToString(service.getPrice()));
-            serviceDomain.setNote(service.getNote().length() >=50 ? service.getNote().substring(0, 49) + "..." : service.getNote());
+            serviceDomain.setNote(service.getNote());
             serviceDomain.setBanner(service.getBanner());
             serviceDomain.setAdvantage(service.getAdvantages());
             serviceDomain.setStatus(ServiceStatus.getServiceStatusByCode(service.getStatus()).getValue());

@@ -7,6 +7,7 @@ import com.example.hourlymaids.domain.*;
 import com.example.hourlymaids.entity.*;
 import com.example.hourlymaids.repository.LeaveDateRepository;
 import com.example.hourlymaids.repository.RoleRepository;
+import com.example.hourlymaids.repository.TaskRepository;
 import com.example.hourlymaids.repository.UserRepository;
 import com.example.hourlymaids.util.DateTimeUtils;
 import com.example.hourlymaids.util.StringUtils;
@@ -37,6 +38,9 @@ public class LeaveDateServiceImpl implements LeaveDateService {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Autowired
+    private TaskRepository taskRepository;
+
     @Override
     public void createLeaveDate(LeaveDateDomain leaveDateDomain) {
         Long userId = StringUtils.convertObjectToLongOrNull(leaveDateDomain.getUserId());
@@ -47,6 +51,7 @@ public class LeaveDateServiceImpl implements LeaveDateService {
         if (StringUtils.isEmpty(note)) {
             throw new CustomException(Error.EMPTY_NOTE.getMessage(), Error.EMPTY_NOTE.getCode(), HttpStatus.BAD_REQUEST);
         }
+        List<TaskEntity> taskEntities = taskRepository.findByEmployeeId(userId);
         List<LeaveDomain> leave = leaveDateDomain.getLeaveDomains();
         if (!CollectionUtils.isEmpty(leave)) {
             List<LeaveDateEntity> entities = leave.stream().map(t -> {
@@ -58,6 +63,11 @@ public class LeaveDateServiceImpl implements LeaveDateService {
                 Date end = DateTimeUtils.convertStringToDateOrNull(t.getEnd(), DateTimeUtils.DDMMYYYYHHMMSS);
                 if (start.after(end)) {
                     throw new CustomException("Thời gian nghỉ không hợp lệ", "S00000", HttpStatus.BAD_REQUEST);
+                }
+                List<TaskEntity> taskOnLeaveDate = taskEntities.stream().filter(task ->
+                        (task.getCancelTime() == null || task.getPaidTime() != null) && (task.getCompleteTime().getTime() < start.getTime() || task.getStartTime().getTime() < end.getTime())).collect(Collectors.toList());
+                if (!CollectionUtils.isEmpty(taskOnLeaveDate)) {
+                    throw new CustomException("Tồn tại công việc có thời gian làm trùng với thời gian nghỉ trong ngày " + t, "S000000", HttpStatus.BAD_REQUEST);
                 }
                 entity.setStart(start);
                 entity.setEnd(end);
