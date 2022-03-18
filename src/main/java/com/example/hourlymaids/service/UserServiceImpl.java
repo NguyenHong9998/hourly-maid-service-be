@@ -214,16 +214,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         String token = RandomStringUtils.randomAlphabetic(8);
         VerifyEntity verifyEntity = verifyRepository.findByUserId(userEntity.getId());
 
-        if (verifyEntity == null) {
-            verifyEntity = new VerifyEntity();
-            verifyEntity.setUserId(userEntity.getId());
-            verifyEntity.setVerifyEmailToken(token);
-        } else {
-            if (verifyEntity.getIsVerifyEmail() != null && verifyEntity.getIsVerifyEmail() == 1) {
-                throw new CustomException(Error.EMAIL_IS_VERIFY.getMessage(), Error.EMAIL_IS_VERIFY.getCode(), HttpStatus.BAD_REQUEST);
-            }
-            verifyEntity.setVerifyEmailToken(token);
-        }
+//        if (verifyEntity == null) {
+//            verifyEntity = new VerifyEntity();
+//            verifyEntity.setUserId(userEntity.getId());
+//            verifyEntity.setVerifyEmailToken(token);
+//        } else {
+//            if (verifyEntity.getIsVerifyEmail() != null && verifyEntity.getIsVerifyEmail() == 1) {
+//                throw new CustomException(Error.EMAIL_IS_VERIFY.getMessage(), Error.EMAIL_IS_VERIFY.getCode(), HttpStatus.BAD_REQUEST);
+//            }
+//            verifyEntity.setVerifyEmailToken(token);
+//        }
         verifyRepository.save(verifyEntity);
         sendMailVerifyMail(userEntity.getEmail(), token, userEntity.getFullName());
     }
