@@ -520,8 +520,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         RoleEntity roleEntity = roleRepository.findByName(userRole.getName());
         UserEntity userEntity = new UserEntity();
         userEntity.setEmail(email);
-        String pass = RandomStringUtils.randomAlphanumeric(8);
-        String password = new BCryptPasswordEncoder().encode(pass);
+//        String pass = RandomStringUtils.randomAlphanumeric(8);
+        String password = new BCryptPasswordEncoder().encode("abc1234");
         userEntity.setRoleId(roleEntity.getId());
         userEntity.setPassword(password);
         userEntity.setFullName(name);
@@ -529,7 +529,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         userEntity.setStatus(EmployeeStatus.ACTIVE.getCode());
         userEntity.setAvatar(avatar);
         userRepository.save(userEntity);
-        sendMailToClient(email, password, name, roleEntity.getName());
+        sendMailToClient(email, "abc1234", name, roleEntity.getName());
     }
 
     void sendMailToClient(String email, String password, String name, String role) {

@@ -467,6 +467,7 @@ public class TaskServiceImpl implements TaskService {
         }
 
         List<TaskEntity> taskEntities = taskRepository.findTaskOnDate(workDate);
+        taskEntities.stream().filter(t ->  t.getCancelTime() == null || t.getPaidTime() == null );
         Long task = StringUtils.convertObjectToLongOrNull(taskId);
         for (TaskEntity taskEntity : taskEntities) {
             Date start = taskEntity.getStartTime();
