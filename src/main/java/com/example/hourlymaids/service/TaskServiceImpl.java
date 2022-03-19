@@ -461,13 +461,14 @@ public class TaskServiceImpl implements TaskService {
         for (LeaveDateEntity entity : leaveDateEntities) {
             Date start = entity.getStart();
             Date end = entity.getEnd();
-            if (endTimeCheck.getTime() < start.getTime() || startTimeCheck.getTime() < end.getTime()) {
+            if ((endTimeCheck.getTime() > start.getTime() && endTimeCheck.getTime() < end.getTime())
+                    || (startTimeCheck.getTime() > start.getTime() && startTimeCheck.getTime() < end.getTime())) {
                 unAvailableUser.add(entity.getUserId());
             }
         }
 
         List<TaskEntity> taskEntities = taskRepository.findTaskOnDate(workDate);
-        taskEntities = taskEntities.stream().filter(t ->  t.getCancelTime() == null && t.getPaidTime() == null ).collect(Collectors.toList());
+        taskEntities = taskEntities.stream().filter(t -> t.getCancelTime() == null && t.getPaidTime() == null).collect(Collectors.toList());
         Long task = StringUtils.convertObjectToLongOrNull(taskId);
         for (TaskEntity taskEntity : taskEntities) {
             Date start = taskEntity.getStartTime();
