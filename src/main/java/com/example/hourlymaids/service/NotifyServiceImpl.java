@@ -70,7 +70,7 @@ public class NotifyServiceImpl implements NotifyService {
             }
             pageable = getPageable(request, pageable);
         } else {
-            pageable = PageRequest.of(request.getOffset(), request.getLimit(), Sort.by(ColumnSortNotify.CREATE_DATE.getValue()).ascending());
+            pageable = PageRequest.of(request.getOffset(), request.getLimit(), Sort.by(ColumnSortNotify.CREATE_DATE.getValue()).descending());
         }
         String valueSearch = StringUtils.replaceSpecialCharacter(request.getValueSearch()).toUpperCase();
 
