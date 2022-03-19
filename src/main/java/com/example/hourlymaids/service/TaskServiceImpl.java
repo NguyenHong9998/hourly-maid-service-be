@@ -754,4 +754,10 @@ public class TaskServiceImpl implements TaskService {
         }
         return details;
     }
+
+    @Override
+    public void deleteTask(DeleteDomain deleteDomain) {
+        List<Long> taskId = deleteDomain.getIds().stream().map(t -> StringUtils.convertObjectToLongOrNull(t)).collect(Collectors.toList());
+        taskRepository.deleteAllById(taskId);
+    }
 }

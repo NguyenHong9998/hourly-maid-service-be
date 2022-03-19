@@ -145,4 +145,10 @@ public class TaskController {
     private ResponseEntity<Object> getOveriewDetailOfTaskOfEmployee(@RequestParam("start_date") String startDate, @RequestParam("end_date") String endDate) {
         return ResponseEntity.ok(ResponseDataAPI.builder().data(taskService.getOveriewDetailOfTaskForEmployee(startDate, endDate)).build());
     }
+
+    @PostMapping("/delete")
+    private ResponseEntity<Object> deleteTask(@RequestBody DeleteDomain deleteDomain) {
+        taskService.deleteTask(deleteDomain);
+        return ResponseEntity.ok(ResponseDataAPI.builder().build());
+    }
 }

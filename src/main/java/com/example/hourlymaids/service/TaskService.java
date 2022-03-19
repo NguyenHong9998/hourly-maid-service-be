@@ -38,4 +38,6 @@ public interface TaskService {
     ResponseDataAPI getListTaskOfEmployee(GetListRequest getListRequest, String date);
 
     List<String> getListWorkDateOfEmployee();
+
+    void deleteTask(DeleteDomain deleteDomain);
 }
